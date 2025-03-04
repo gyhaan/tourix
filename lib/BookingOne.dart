@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import './components/BottomBar.dart';
+import './components/TopBar.dart';
 
 
 void main() {
