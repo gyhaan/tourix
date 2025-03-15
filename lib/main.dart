@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import './Screens/TicketInfo.dart';
+// import './Screens/TicketInfo.dart';
 // import 'Screens/Search.dart';
+import './Screens/AgencyBooking.dart';
 
 void main() {
   runApp(const MyApp());
@@ -34,7 +35,7 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return  Scaffold(
-      body: TicketInfo(pageTitle: 'TicketInfoBar',),
+      body:Booking(),
     );
   }
 }
