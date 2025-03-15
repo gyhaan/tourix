@@ -25,34 +25,36 @@ class _SearchbarState extends State<Searchbar> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      child: TextField(
-        controller: myController,
-        decoration: InputDecoration(
-          hintText: 'Search Ticket',
-          hintStyle: TextStyle(color: Color(0xFF3630A1)),
-          suffixIcon: GestureDetector(
-            onTap: clickCancel, // Remove the () - pass the function reference
-            child: Icon(Icons.cancel, color: Color(0xFF3630A1), size: 24),
+    return Center(
+      child: Container(
+        width: 380.0,
+        child: TextField(
+          controller: myController,
+          decoration: InputDecoration(
+            hintText: 'Search Ticket',
+            hintStyle: TextStyle(color: Color(0xFF3630A1)),
+            suffixIcon: GestureDetector(
+              onTap: clickCancel, // Remove the () - pass the function reference
+              child: Icon(Icons.cancel, color: Color(0xFF3630A1), size: 24),
+            ),
+            prefixIcon: Icon(Icons.search, color: Color(0xFF3630A1), size: 24),
+            border: OutlineInputBorder(
+              borderSide: BorderSide(color: Color(0xFF3630A1), width: 1),
+              borderRadius: BorderRadius.circular(4),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderSide: BorderSide(color: Color(0xFF3630A1), width: 1),
+              borderRadius: BorderRadius.circular(4),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderSide: BorderSide(color: Color(0xFF3630A1), width: 2),
+              borderRadius: BorderRadius.circular(4),
+            ),
+            contentPadding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
           ),
-          prefixIcon: Icon(Icons.search, color: Color(0xFF3630A1), size: 24),
-          border: OutlineInputBorder(
-            borderSide: BorderSide(color: Color(0xFF3630A1), width: 1),
-            borderRadius: BorderRadius.circular(4),
-          ),
-          enabledBorder: OutlineInputBorder(
-            borderSide: BorderSide(color: Color(0xFF3630A1), width: 1),
-            borderRadius: BorderRadius.circular(4),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderSide: BorderSide(color: Color(0xFF3630A1), width: 2),
-            borderRadius: BorderRadius.circular(4),
-          ),
-          contentPadding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+          cursorColor: Color(0xFF3630A1),
+          style: TextStyle(color: Color(0xFF3630A1)),
         ),
-        cursorColor: Color(0xFF3630A1),
-        style: TextStyle(color: Color(0xFF3630A1)),
       ),
     );
   }

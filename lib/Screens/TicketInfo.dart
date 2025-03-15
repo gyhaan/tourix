@@ -1,28 +1,59 @@
 import 'package:flutter/material.dart';
 import '../components/TopBar.dart';
 import '../components/TopImageScreen.dart';
+import '../components/BottomBar.dart';
+import '../components/TicketInfoBody.dart';
 
-class TicketTopBar extends StatelessWidget implements PreferredSizeWidget {
+class TicketInfo extends StatelessWidget {
   final String pageTitle;
 
-  const TicketTopBar({
+  const TicketInfo({
     super.key,
     required this.pageTitle,
   });
 
   @override
-  Size get preferredSize => Size.fromHeight(120); // Adjust height as needed
-
-  @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          TopBar(),
-          TopImageScreen(pageTitle: pageTitle),
-        ],
+    return Scaffold(
+      appBar: PreferredSize(
+        preferredSize: Size.fromHeight(kToolbarHeight),
+        child: TopBar(),
       ),
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          return SingleChildScrollView(
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                minHeight: constraints.maxHeight,
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TopImageScreen(pageTitle: pageTitle),
+                  const SizedBox(height: 30.0),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                    child: TicketInfobody(
+                      name: 'Ian Ganza',
+                      departureDate: '28/03/2025',
+                      departureTime: '14:00',
+                      from: 'Kigali',
+                      to: 'Bugex',
+                      agency: 'Volcano',
+                      seatsBooked: 3,
+                      seatName: 'A4',
+                      price: '£20',
+                      paymentMethod: 'Momo',
+                    ),
+                  ),
+                  const SizedBox(height: 20.0),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
+      bottomNavigationBar: BottomBar(),
     );
   }
 }
