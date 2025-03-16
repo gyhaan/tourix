@@ -1,6 +1,6 @@
-import 'package:first_app/widgets/bottom_bar.dart';
-import 'package:first_app/widgets/no_tickets_available.dart';
 import 'package:flutter/material.dart';
+import 'package:tourix_app/widgets/bottom_bar.dart';
+import 'package:tourix_app/widgets/no_tickets_available.dart';
 import '../models/ticket_info.dart';
 import '../widgets/ticket_card.dart';
 
@@ -117,7 +117,7 @@ class TicketScreen extends StatelessWidget {
           ),
 
           tickets.isEmpty
-              ? NoTicketsAvailable()
+              ? const NoTicketsAvailable()
               : Padding(
                   padding: const EdgeInsets.fromLTRB(24, 16, 24, 16),
                   child: Align(
@@ -159,7 +159,7 @@ class TicketScreen extends StatelessWidget {
           ),
         ],
       ),
-      bottomNavigationBar: BottomNavigationBarWidget(),
+      bottomNavigationBar: const BottomNavigationBarWidget(),
     );
   }
 }
