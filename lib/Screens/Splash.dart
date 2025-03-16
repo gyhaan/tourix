@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
-import './TicketInfo.dart'; // Import your home screen
+import '../Screens/AgencyBooking.dart'; // Import your home screen
 
 class Splash extends StatefulWidget {
   const Splash({super.key});
@@ -13,12 +13,11 @@ class _SplashState extends State<Splash> {
   @override
   void initState() {
     super.initState();
-    // Shorter duration since we already have native splash
-    Timer(const Duration(milliseconds: 500), () {
+    Timer(const Duration(milliseconds: 4000), () {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-          builder: (context) => const TicketInfoBar(pageTitle: 'TicketInfo',), // Replace with your home screen
+          builder: (context) => const Booking(), 
         ),
       );
     });
@@ -26,11 +25,11 @@ class _SplashState extends State<Splash> {
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
+    return  Scaffold(
       backgroundColor: Color(0xFF3630A1), 
       body: Center(
         child: Image(
-          image: AssetImage('assets/logo.png'),
+          image: AssetImage('assets/images/logo.png'),
           width: 150, 
           height: 150, 
         ),
