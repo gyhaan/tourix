@@ -1,13 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 import 'dart:async';
 import 'screens/login.dart';
 import 'screens/signup.dart';
 
-void main() {
-  runApp(MyApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -32,7 +40,7 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    Timer(Duration(seconds: 20), () {
+    Timer(const Duration(seconds: 20), () {
       Navigator.pushReplacementNamed(context, '/login');
     });
   }
@@ -54,7 +62,7 @@ class _SplashScreenState extends State<SplashScreen> {
             color: Colors.black.withOpacity(0.3), // Reduce overlay opacity
           ),
           // Centered Content
-          Align(
+          const Align(
             alignment: Alignment(0.0, 0.4), // Moves text downward
             child: Column(
               mainAxisSize: MainAxisSize.min,

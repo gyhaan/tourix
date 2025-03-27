@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "697565458559",
+    "project_id": "tourix-f476f",
+    "storage_bucket": "tourix-f476f.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:697565458559:android:5480c4462ddb53e8bb4f4a",
+        "android_client_info": {
+          "package_name": "com.example.tourix"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAcAO28CUzpwzWIIESL3onZ2qFUg7pXTNU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

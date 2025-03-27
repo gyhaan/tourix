@@ -1,15 +1,71 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:tourix_app/screens/home.dart';
 import 'signup.dart'; // Ensure this file exists
 
-class LoginPage extends StatelessWidget {
-  // Define a custom blue color matching the one in the image
-  final Color customBlue =
-      const Color(0xFF3D2DB6); // Adjust this color to match exactly
+class LoginPage extends StatefulWidget {
+  @override
+  _LoginPageState createState() => _LoginPageState();
+}
+
+class _LoginPageState extends State<LoginPage> {
+  final Color customBlue = const Color(0xFF3D2DB6);
+
+  // Controllers for input fields
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+
+  bool isLoading = false; // Loading state
+
+  // 🔐 Login function
+  void loginUser() async {
+    if (emailController.text.isEmpty || passwordController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Please enter email and password")),
+      );
+      return;
+    }
+
+    setState(() => isLoading = true); // Show loading indicator
+
+    try {
+      // 1️⃣ Authenticate user with Firebase
+      UserCredential userCredential =
+          await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: emailController.text.trim(),
+        password: passwordController.text.trim(),
+      );
+
+      // 2️⃣ Fetch user details from Firestore
+      DocumentSnapshot userDoc = await FirebaseFirestore.instance
+          .collection("users")
+          .doc(userCredential.user!.uid)
+          .get();
+
+      if (!userDoc.exists) {
+        throw Exception("User data not found in Firestore!");
+      }
+
+      // 3️⃣ Navigate to home screen
+      Navigator.push(
+          context, MaterialPageRoute(builder: (context) => const Home()));
+
+      print("✅ Login successful!");
+    } catch (e) {
+      print("❌ Error: $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Error: ${e.toString()}")),
+      );
+    }
+
+    setState(() => isLoading = false); // Hide loading indicator
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white, // Set background to white
+      backgroundColor: Colors.white,
       body: Padding(
         padding: const EdgeInsets.all(20.0),
         child: Column(
@@ -20,7 +76,7 @@ class LoginPage extends StatelessWidget {
               'assets/images/Frame2.png',
               width: 100,
               height: 100,
-              fit: BoxFit.cover, // Keep original image color
+              fit: BoxFit.cover,
             ),
             const SizedBox(height: 20),
             const Text(
@@ -28,40 +84,43 @@ class LoginPage extends StatelessWidget {
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
-                color: Colors.black, // Black text for title
+                color: Colors.black,
               ),
             ),
             const SizedBox(height: 20),
+
+            // Email Input
             TextField(
+              controller: emailController,
               decoration: InputDecoration(
                 labelText: "Email",
                 border: const OutlineInputBorder(),
                 focusedBorder: OutlineInputBorder(
-                  borderSide: BorderSide(color: customBlue), // Blue border
+                  borderSide: BorderSide(color: customBlue),
                 ),
               ),
             ),
             const SizedBox(height: 10),
+
+            // Password Input
             TextField(
+              controller: passwordController,
               obscureText: true,
               decoration: InputDecoration(
                 labelText: "Password",
                 border: const OutlineInputBorder(),
                 focusedBorder: OutlineInputBorder(
-                  borderSide: BorderSide(color: customBlue), // Blue border
+                  borderSide: BorderSide(color: customBlue),
                 ),
               ),
             ),
             const SizedBox(height: 10),
+
             Align(
               alignment: Alignment.centerRight,
               child: GestureDetector(
                 onTap: () {
-                  // Navigate to Forgot Password Page
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const SignUpPage()),
-                  );
+                  // Forgot Password Feature (Can be implemented later)
                 },
                 child: Text(
                   "Forgot Password?",
@@ -71,29 +130,29 @@ class LoginPage extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 20),
+
+            // Login Button
             ElevatedButton(
-              onPressed: () {
-                // Navigate to BookingOne after login
-                // Navigator.push(
-                //   context,
-                //   MaterialPageRoute(builder: (context) => BookingOne()),
-                // );
-              },
+              onPressed:
+                  isLoading ? null : loginUser, // Disable button while loading
               style: ElevatedButton.styleFrom(
                 minimumSize: const Size(double.infinity, 50),
-                backgroundColor: customBlue, // Button color
-                foregroundColor: Colors.white, // Text color
+                backgroundColor: customBlue,
+                foregroundColor: Colors.white,
                 shape: RoundedRectangleBorder(
-                  borderRadius:
-                      BorderRadius.circular(8), // Match the rounded style
+                  borderRadius: BorderRadius.circular(8),
                 ),
               ),
-              child: const Text("Login"),
+              child: isLoading
+                  ? CircularProgressIndicator(
+                      color: Colors.white) // Show loader
+                  : const Text("Login"),
             ),
             const SizedBox(height: 20),
+
+            // Sign Up Navigation
             GestureDetector(
               onTap: () {
-                // Navigate to SignUpPage
                 Navigator.push(
                   context,
                   MaterialPageRoute(builder: (context) => const SignUpPage()),
@@ -102,13 +161,12 @@ class LoginPage extends StatelessWidget {
               child: Text.rich(
                 TextSpan(
                   text: "Don’t have an account? ",
-                  style: const TextStyle(
-                      color: Colors.black87), // Regular text color
+                  style: const TextStyle(color: Colors.black87),
                   children: [
                     TextSpan(
                       text: "Sign Up",
                       style: TextStyle(
-                        color: customBlue, // Light blue clickable text
+                        color: customBlue,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
