@@ -46,7 +46,7 @@ class _SearchState extends State<Search> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: TopBar(),
+      appBar: const TopBar(),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
         child: Column(
@@ -55,14 +55,15 @@ class _SearchState extends State<Search> {
             TextField(
               controller: _searchController,
               onChanged: _filterTrips,
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 labelText: 'Search Trips',
                 border: OutlineInputBorder(),
                 prefixIcon: Icon(Icons.search),
               ),
             ),
-            const SizedBox(height: 35.0),
+            const SizedBox(height: 10.0),
             Expanded(
+              // ⬅ Wrap ListView.builder in Expanded
               child: ListView.builder(
                 itemCount: filteredTrips.length,
                 itemBuilder: (context, index) {
@@ -72,7 +73,7 @@ class _SearchState extends State<Search> {
                         trip: filteredTrips[index]['trip']!,
                         agency: filteredTrips[index]['agency']!,
                       ),
-                      const SizedBox(height: 15.0), // Add space between containers
+                      const SizedBox(height: 15.0),
                     ],
                   );
                 },
@@ -81,7 +82,7 @@ class _SearchState extends State<Search> {
           ],
         ),
       ),
-      bottomNavigationBar: BottomBar(),
+      bottomNavigationBar: const BottomBar(),
     );
   }
 }
