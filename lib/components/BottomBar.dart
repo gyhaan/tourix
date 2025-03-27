@@ -25,7 +25,7 @@ class BottomBar extends StatelessWidget {
         NavigationDestination(
           icon: Icon(Icons.history_outlined, color: Colors.white),
           label: 'History',
-          selectedIcon: Icon(Icons.history, color: Colors.white),
+          selectedIcon: Icon(Icons.hourglass_top_rounded, color: Colors.white),
         ),
       ],
     );

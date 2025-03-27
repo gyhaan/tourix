@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 // import './Screens/TicketInfo.dart';
-// import 'Screens/Search.dart';
+import 'Screens/Search.dart';
 import './Screens/AgencyBooking.dart';
 
 void main() {
@@ -35,7 +35,7 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return  Scaffold(
-      body:Booking(),
+      body:Search(),
     );
   }
 }
