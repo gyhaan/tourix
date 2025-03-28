@@ -3,8 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:tourix_app/firebase_options.dart';
 import 'package:tourix_app/widgets/app.dart';
 import 'dart:async';
+import 'screens/Search.dart';
+import 'screens/AgencyBooking.dart';
 import 'screens/login.dart';
 import 'screens/signup.dart';
+// import './Screens/TicketInfo.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -22,14 +25,24 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
+        navigationBarTheme: NavigationBarThemeData(
+          labelTextStyle: MaterialStateProperty.all(
+            const TextStyle(color: Colors.white, fontSize: 14),
+          ),
+          indicatorColor: Colors.white.withOpacity(0.2),
+          backgroundColor: const Color(0xFF3630A1),
+          labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
+        ),
       ),
       debugShowCheckedModeBanner: false,
       home: const SplashScreen(),
       routes: {
         '/login': (context) => const LoginPage(),
         '/signup': (context) => const SignUpPage(),
+        '/search': (context) => const HomeScreen(), // Search screen
+        '/booking': (context) => const Booking(),   // AgencyBooking screen
         '/home': (context) => const MyHomePage(title: 'Tourix Home Page'),
-        '/tickets': (context) => const TicketApp(),
+        '/tickets': (context) => const TicketApp(), // TicketApp screen
       },
     );
   }
@@ -92,6 +105,17 @@ class _SplashScreenState extends State<SplashScreen> {
           ),
         ],
       ),
+    );
+  }
+}
+
+class HomeScreen extends StatelessWidget {
+  const HomeScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const Scaffold(
+      body: Search(),
     );
   }
 }
