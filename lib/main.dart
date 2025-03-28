@@ -1,6 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:tourix_app/firebase_options.dart';
+import 'package:tourix_app/widgets/app.dart';
 import 'dart:async';
 import 'screens/Search.dart';
 import 'screens/AgencyBooking.dart';
@@ -41,6 +42,7 @@ class MyApp extends StatelessWidget {
         '/search': (context) => const HomeScreen(), // Search screen
         '/booking': (context) => const Booking(),   // AgencyBooking screen
         '/home': (context) => const MyHomePage(title: 'Tourix Home Page'),
+        '/tickets': (context) => const TicketApp(), // TicketApp screen
       },
     );
   }
