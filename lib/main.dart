@@ -28,7 +28,7 @@ class MyApp extends StatelessWidget {
           labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
         ),
       ),
-      home: const HomeScreen(),
+      home: const Booking(),
     );
   }
 }
