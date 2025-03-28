@@ -47,6 +47,14 @@ class _LoginPageState extends State<LoginPage> {
         throw Exception("User data not found in Firestore!");
       }
 
+      Future<String?> getUserID() async {
+        User? user = FirebaseAuth.instance.currentUser;
+        print(user?.uid);
+        return user?.uid;
+      }
+
+      getUserID();
+
       // 3️⃣ Navigate to home screen
       Navigator.push(
           context, MaterialPageRoute(builder: (context) => const Home()));
@@ -60,6 +68,13 @@ class _LoginPageState extends State<LoginPage> {
     }
 
     setState(() => isLoading = false); // Hide loading indicator
+  }
+
+  @override
+  void dispose() {
+    emailController.dispose();
+    passwordController.dispose();
+    super.dispose();
   }
 
   @override
