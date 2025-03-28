@@ -40,6 +40,15 @@ class DefaultFirebaseOptions {
     }
   }
 
+  static const FirebaseOptions web = FirebaseOptions(
+    apiKey: 'AIzaSyD461r3w3W94YFDhtw7m63dWoEi3ll8Gyg',
+    appId: '1:697565458559:web:112673e621ae910bbb4f4a',
+    messagingSenderId: '697565458559',
+    projectId: 'tourix-f476f',
+    authDomain: 'tourix-f476f.firebaseapp.com',
+    storageBucket: 'tourix-f476f.firebasestorage.app',
+  );
+
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyAcAO28CUzpwzWIIESL3onZ2qFUg7pXTNU',
     appId: '1:697565458559:android:5480c4462ddb53e8bb4f4a',
@@ -55,15 +64,6 @@ class DefaultFirebaseOptions {
     projectId: 'tourix-f476f',
     storageBucket: 'tourix-f476f.firebasestorage.app',
     iosBundleId: 'com.example.tourix',
-  );
-
-  static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyD461r3w3W94YFDhtw7m63dWoEi3ll8Gyg',
-    appId: '1:697565458559:web:112673e621ae910bbb4f4a',
-    messagingSenderId: '697565458559',
-    projectId: 'tourix-f476f',
-    authDomain: 'tourix-f476f.firebaseapp.com',
-    storageBucket: 'tourix-f476f.firebasestorage.app',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
@@ -83,5 +83,4 @@ class DefaultFirebaseOptions {
     authDomain: 'tourix-f476f.firebaseapp.com',
     storageBucket: 'tourix-f476f.firebasestorage.app',
   );
-
 }

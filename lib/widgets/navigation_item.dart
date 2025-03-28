@@ -6,11 +6,11 @@ class NavigationItem extends StatelessWidget {
   final bool isActive;
 
   const NavigationItem({
-    Key? key,
+    super.key,
     required this.icon,
     required this.label,
     required this.isActive,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -31,5 +31,5 @@ class NavigationItem extends StatelessWidget {
         ),
       ],
     );
-  }
+  } // ✅ Missing closing bracket added
 }
