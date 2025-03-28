@@ -31,5 +31,5 @@ class NavigationItem extends StatelessWidget {
         ),
       ],
     );
-  }
+  } // ✅ Missing closing bracket added
 }
