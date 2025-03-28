@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
-import '../Screens/AgencyBooking.dart'; // Import your home screen
+import 'AgencyBooking.dart'; // Import your home screen
 
 class Splash extends StatefulWidget {
   const Splash({super.key});
@@ -17,7 +17,7 @@ class _SplashState extends State<Splash> {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-          builder: (context) => const Booking(), 
+          builder: (context) => const Booking(),
         ),
       );
     });
@@ -25,13 +25,13 @@ class _SplashState extends State<Splash> {
 
   @override
   Widget build(BuildContext context) {
-    return  Scaffold(
-      backgroundColor: Color(0xFF3630A1), 
+    return Scaffold(
+      backgroundColor: Color(0xFF3630A1),
       body: Center(
         child: Image(
           image: AssetImage('assets/images/logo.png'),
-          width: 150, 
-          height: 150, 
+          width: 150,
+          height: 150,
         ),
       ),
     );

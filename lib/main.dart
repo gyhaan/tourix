@@ -2,8 +2,8 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:tourix_app/firebase_options.dart';
 // import './Screens/TicketInfo.dart';
-import 'Screens/Search.dart';
-import './Screens/AgencyBooking.dart';
+import 'screens/Search.dart';
+import 'screens/AgencyBooking.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import '../components/TopBar.dart';
-import '../components/TopImageScreen.dart';
-import '../components/BottomBar.dart';
-import '../components/TicketInfoBody.dart';
+import '../widgets/TopBar.dart';
+import '../widgets/TopImageScreen.dart';
+import '../widgets/BottomBar.dart';
+import '../widgets/TicketInfoBody.dart';
 
 class TicketInfo extends StatelessWidget {
   final String pageTitle;

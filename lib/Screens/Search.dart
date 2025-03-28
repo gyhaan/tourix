@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import '../components/TopBar.dart';
-import '../components/BottomBar.dart';
-import '../components/Searchbar.dart';
-import '../components/TicketOptions.dart';
+import '../widgets/TopBar.dart';
+import '../widgets/BottomBar.dart';
+import '../widgets/Searchbar.dart';
+import '../widgets/TicketOptions.dart';
 
 class Search extends StatefulWidget {
   const Search({super.key});
