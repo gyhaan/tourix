@@ -1,5 +1,5 @@
-import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/material.dart';
 import 'firebase_options.dart';
 import 'dart:async';
 import 'screens/login.dart';
@@ -19,19 +19,25 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-        debugShowCheckedModeBanner: false,
-        home: Scaffold(
-          body: LoginPage(),
-        )
-        // routes: {
-        //   '/login': (context) => LoginPage(),
-        //   '/signup': (context) => SignUpPage(),
-        // },
-        );
+      title: 'Tourix App', // Updated from 'Flutter Demo' to reflect your app
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        useMaterial3: true,
+      ),
+      debugShowCheckedModeBanner: false,
+      home: const SplashScreen(),
+      routes: {
+        '/login': (context) => const LoginPage(),
+        '/signup': (context) => const SignUpPage(),
+        '/home': (context) => const MyHomePage(title: 'Tourix Home Page'),
+      },
+    );
   }
 }
 
 class SplashScreen extends StatefulWidget {
+  const SplashScreen({super.key});
+
   @override
   _SplashScreenState createState() => _SplashScreenState();
 }
@@ -49,21 +55,18 @@ class _SplashScreenState extends State<SplashScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Stack(
-        fit: StackFit.expand, // Makes the image cover the whole screen
+        fit: StackFit.expand,
         children: [
-          // Background Image (Reduce blurriness)
           Image.asset(
-            'assets/images/splash_image.png', // Ensure the image path is correct
-            fit: BoxFit.cover, // Use BoxFit.cover to fill the screen
-            filterQuality: FilterQuality.high, // Improves image quality
+            'assets/images/splash_image.png',
+            fit: BoxFit.cover,
+            filterQuality: FilterQuality.high,
           ),
-          // Overlay for better text readability (reduce opacity to improve clarity)
           Container(
-            color: Colors.black.withOpacity(0.3), // Reduce overlay opacity
+            color: Colors.black.withOpacity(0.3),
           ),
-          // Centered Content
           const Align(
-            alignment: Alignment(0.0, 0.4), // Moves text downward
+            alignment: Alignment(0.0, 0.4),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -72,7 +75,7 @@ class _SplashScreenState extends State<SplashScreen> {
                   style: TextStyle(
                     fontSize: 28,
                     fontWeight: FontWeight.bold,
-                    color: Colors.white, // Changed to white
+                    color: Colors.white,
                   ),
                 ),
                 SizedBox(height: 10),
@@ -80,7 +83,7 @@ class _SplashScreenState extends State<SplashScreen> {
                   "You can book your ticket here!",
                   style: TextStyle(
                     fontSize: 16,
-                    color: Colors.white, // Changed to white
+                    color: Colors.white,
                   ),
                   textAlign: TextAlign.center,
                 ),
@@ -88,6 +91,54 @@ class _SplashScreenState extends State<SplashScreen> {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class MyHomePage extends StatefulWidget {
+  const MyHomePage({super.key, required this.title});
+
+  final String title;
+
+  @override
+  State<MyHomePage> createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State<MyHomePage> {
+  int _counter = 0;
+
+  void _incrementCounter() {
+    setState(() {
+      _counter++;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        title: Text(widget.title),
+      ),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            const Text(
+              'You have pushed the button this many times:',
+            ),
+            Text(
+              '$_counter',
+              style: Theme.of(context).textTheme.headlineMedium,
+            ),
+          ],
+        ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: _incrementCounter,
+        tooltip: 'Increment',
+        child: const Icon(Icons.add),
       ),
     );
   }
