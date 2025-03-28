@@ -1,5 +1,5 @@
-import 'screens/ticket_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:tourix_app/screens/ticket_screen.dart';
 
 class TicketApp extends StatelessWidget {
   const TicketApp({Key? key}) : super(key: key);

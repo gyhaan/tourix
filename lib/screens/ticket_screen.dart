@@ -85,7 +85,7 @@ class TicketScreen extends StatelessWidget {
         ],
       ),
       body: Column(
-        spacing: tickets.isEmpty ? 110.0 : 0,
+        // spacing: tickets.isEmpty ? 110.0 : 0,
         children: [
           // Header image container with "Upcoming Tickets" text
           Container(
