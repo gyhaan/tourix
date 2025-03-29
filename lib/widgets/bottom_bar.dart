@@ -17,7 +17,7 @@ class BottomNavigationBarWidget extends StatelessWidget {
           ),
         ],
       ),
-      child: Row(
+      child: const Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
           NavigationItem(icon: Icons.home, label: 'Home', isActive: true),
@@ -31,3 +31,4 @@ class BottomNavigationBarWidget extends StatelessWidget {
       ),
     );
   }
+}

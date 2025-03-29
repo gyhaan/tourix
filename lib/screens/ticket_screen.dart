@@ -1,56 +1,118 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:tourix_app/screens/Search.dart';
 import 'package:tourix_app/widgets/bottom_bar.dart';
 import 'package:tourix_app/widgets/no_tickets_available.dart';
 import '../models/ticket_info.dart';
 import '../widgets/ticket_card.dart';
 
-class TicketScreen extends StatelessWidget {
-  const TicketScreen({Key? key}) : super(key: key);
+class TicketScreen extends StatefulWidget {
+  final String userId; // Pass the user ID when navigating to this screen
+  const TicketScreen({Key? key, required this.userId}) : super(key: key);
+
+  @override
+  _TicketScreenState createState() => _TicketScreenState();
+}
+
+class _TicketScreenState extends State<TicketScreen> {
+  late Future<List<Map<String, dynamic>>> _ticketsFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _ticketsFuture = fetchUpcomingTickets(widget.userId);
+  }
+
+  Future<List<Map<String, dynamic>>> fetchUpcomingTickets(String userId) async {
+    try {
+      // Convert userId into a Firestore reference
+      final userRef = FirebaseFirestore.instance.doc("users/$userId");
+      print("Fetching tickets for userRef: $userRef");
+
+      // Query upcoming tickets
+      QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+          .collection("booking")
+          .where("travellerID", isEqualTo: userRef) // Reference comparison
+          .where("departureTime",
+              isGreaterThan: DateTime.now()) // Future tickets
+          .orderBy("departureTime",
+              descending: false) // Sort by upcoming departures
+          .get();
+
+      print("Found ${querySnapshot.docs.length} upcoming bookings.");
+
+      // Map Firestore documents to TicketInfo objects
+      List<Map<String, dynamic>> tickets = [];
+      for (var doc in querySnapshot.docs) {
+        print("\n--- Processing Booking Document ---");
+        print("Booking Document ID: ${doc.id}");
+        var data = doc.data() as Map<String, dynamic>;
+        print("Booking Data: $data");
+
+        // Step 1: Resolve the tripID reference to get the trip document
+        DocumentReference tripRef =
+            data["tripID"]; // This is a DocumentReference
+        print("Fetching Trip Document with tripID: $tripRef");
+        DocumentSnapshot tripSnapshot = await tripRef.get();
+        var tripData = tripSnapshot.data() as Map<String, dynamic>?;
+        print("Trip Document Data: $tripData");
+
+        // Extract origin and destination from the trip document
+        String origin = tripData?["departureCity"] ?? "Unknown";
+        String destination = tripData?["destinationCity"] ?? "Unknown";
+        print("Extracted Origin: $origin, Destination: $destination");
+
+        // Step 2: Resolve the agencyID reference inside the trip document
+        String agencyName = "Unknown Agency";
+        if (tripData != null && tripData.containsKey("agencyID")) {
+          DocumentReference agencyRef =
+              tripData["agencyID"]; // This is a DocumentReference
+          print("Fetching Agency Document with agencyID: $agencyRef");
+          DocumentSnapshot agencySnapshot = await agencyRef.get();
+          var agencyData = agencySnapshot.data() as Map<String, dynamic>?;
+          print("Agency Document Data: $agencyData");
+          // Assuming the full name is stored in a field called "fullName" in the users collection
+          agencyName = agencyData?["name"] ?? "Unknown Agency";
+          print("Extracted Agency Name: $agencyName");
+        } else {
+          print("No agencyID found in trip document or tripData is null.");
+        }
+
+        var ticket = {
+          "date": data["departureTime"]
+              .toDate()
+              .toString()
+              .split(" ")[0], // Extract date
+          "time": data["departureTime"]
+              .toDate()
+              .toString()
+              .split(" ")[1], // Extract time
+          "ticketCode": doc.id
+              .substring(0, 5), // Use Firestore document ID as ticket code
+          "origin": origin, // From trip document
+          "destination": destination, // From trip document
+          "passengers": (data["seatsBooked"] as List).length,
+          // "busType": data["busType"] ?? "Standard",
+          "busType": agencyName, // Add the agency name to the map
+        };
+
+        print(
+            "Created TicketInfo: { date: ${data["departureTime"].toDate().toString().split(" ")[0]}, time: ${data["departureTime"].toDate().toString().split(" ")[1]}, ticketCode: ${doc.id}, origin: ${origin}, destination: ${destination}, passengers: ${(data["seatsBooked"] as List).length}, busType: ${data["busType"]} }");
+
+        tickets.add(ticket);
+      }
+
+      print("\nTotal Tickets Fetched: ${tickets.length}");
+      return tickets;
+    } catch (e) {
+      print("Error fetching tickets: $e");
+      throw e;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    // Sample ticket data
-    final List<TicketInfo> tickets = [
-      TicketInfo(
-        date: '9/11/2025',
-        time: '11:00 AM',
-        ticketCode: 'AB123',
-        origin: 'Rwamagana',
-        destination: 'Nyagatare',
-        passengers: 2,
-        busType: 'Volcano',
-      ),
-      TicketInfo(
-        date: '9/11/2025',
-        time: '11:00 AM',
-        ticketCode: 'AB123',
-        origin: 'Rwamagana',
-        destination: 'Nyagatare',
-        passengers: 2,
-        busType: 'Volcano',
-      ),
-      TicketInfo(
-        date: '9/11/2025',
-        time: '11:00 AM',
-        ticketCode: 'AB123',
-        origin: 'Rwamagana',
-        destination: 'Nyagatare',
-        passengers: 2,
-        busType: 'Volcano',
-      ),
-      TicketInfo(
-        date: '9/11/2025',
-        time: '11:00 AM',
-        ticketCode: 'AB123',
-        origin: 'Rwamagana',
-        destination: 'Nyagatare',
-        passengers: 2,
-        busType: 'Volcano',
-      ),
-    ];
-
     return Scaffold(
-      // AppBar with Tourix logo and notification icon
       appBar: AppBar(
         automaticallyImplyLeading: false,
         backgroundColor: const Color(0xFF3630A1),
@@ -64,7 +126,6 @@ class TicketScreen extends StatelessWidget {
                 borderRadius: BorderRadius.circular(5),
               ),
               child: const Icon(Icons.home, color: Color(0xFF3630A1), size: 20),
-              // Later replace with: Image.asset('assets/logo.png', width: 24, height: 24)
             ),
             const SizedBox(width: 8),
             const Text(
@@ -85,9 +146,8 @@ class TicketScreen extends StatelessWidget {
         ],
       ),
       body: Column(
-        // spacing: tickets.isEmpty ? 110.0 : 0,
         children: [
-          // Header image container with "Upcoming Tickets" text
+          // Header
           Container(
             height: 140,
             width: double.infinity,
@@ -104,7 +164,6 @@ class TicketScreen extends StatelessWidget {
               ),
             ),
             child: const Center(
-              // Use Center widget to center the text
               child: Text(
                 'Upcoming Tickets',
                 style: TextStyle(
@@ -115,44 +174,74 @@ class TicketScreen extends StatelessWidget {
               ),
             ),
           ),
-
-          tickets.isEmpty
-              ? const NoTicketsAvailable()
-              : Padding(
-                  padding: const EdgeInsets.fromLTRB(24, 16, 24, 16),
-                  child: Align(
-                    alignment: Alignment.centerRight,
-                    child: ElevatedButton(
-                      onPressed: () {},
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF3630A1),
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 32, vertical: 12),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                      ),
-                      child: const Text(
-                        'Book Ticket',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 16,
-                          fontWeight: FontWeight.w400,
-                        ),
-                      ),
-                    ),
+          const SizedBox(
+            height: 15,
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24),
+            child: Align(
+              alignment: Alignment.centerRight,
+              child: ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const Search()),
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF3D2DB6), // Button color
+                  foregroundColor: Colors.white, // Text color
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
                   ),
                 ),
+                child: const Text('Book Ticket'),
+              ),
+            ),
+          ),
 
-          // Ticket List
+          const SizedBox(
+            height: 15,
+          ),
+          // Fetch and display tickets
           Expanded(
-            child: ListView.builder(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
-              itemCount: tickets.length,
-              itemBuilder: (context, index) {
-                return Padding(
-                  padding: const EdgeInsets.only(bottom: 16),
-                  child: TicketCard(ticket: tickets[index]),
+            child: FutureBuilder<List<Map<String, dynamic>>>(
+              // Modify this to be the correct type.
+              future: _ticketsFuture,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                } else if (snapshot.hasError) {
+                  return Center(child: Text("Failed to load tickets."));
+                } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                  return const NoTicketsAvailable();
+                }
+
+                final tickets = snapshot.data!;
+                return ListView.builder(
+                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  itemCount: tickets.length,
+                  itemBuilder: (context, index) {
+                    // Convert the map data into a TicketInfo object
+                    final ticketData = tickets[index];
+                    final ticket = TicketInfo(
+                      date: ticketData['date'],
+                      time: ticketData['time'],
+                      ticketCode: ticketData['ticketCode'],
+                      origin: ticketData['origin'],
+                      destination: ticketData['destination'],
+                      passengers: ticketData['passengers'],
+                      busType: ticketData['busType'],
+                    );
+
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 16),
+                      child: TicketCard(
+                          ticket: ticket), // Pass TicketInfo instead of Map
+                    );
+                  },
                 );
               },
             ),

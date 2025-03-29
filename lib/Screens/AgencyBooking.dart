@@ -28,7 +28,7 @@ class _BookingState extends State<Booking> {
       //   return;
       // }
 
-      String uid = "7Z2CcAgivRUwgHZpfUF3FBrHCwG2";
+      String agencyID = "7Z2CcAgivRUwgHZpfUF3FBrHCwG2";
       String departure = _departureController.text.trim();
       String destination = _destinationController.text.trim();
       int price = int.tryParse(_priceController.text.trim()) ?? 0;
@@ -50,7 +50,7 @@ class _BookingState extends State<Booking> {
 
       // Firestore document structure
       Map<String, dynamic> tripData = {
-        'uid': uid,
+        'agencyID': agencyID,
         'departureCity': departure,
         'destinationCity': destination,
         'price': price,

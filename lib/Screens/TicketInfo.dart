@@ -15,7 +15,7 @@ class TicketInfo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: PreferredSize(
+      appBar: const PreferredSize(
         preferredSize: Size.fromHeight(kToolbarHeight),
         child: TopBar(),
       ),
@@ -31,8 +31,8 @@ class TicketInfo extends StatelessWidget {
                 children: [
                   TopImageScreen(pageTitle: pageTitle),
                   const SizedBox(height: 30.0),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 16.0),
                     child: TicketInfobody(
                       name: 'Ian Ganza',
                       departureDate: '28/03/2025',

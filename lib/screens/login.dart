@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:tourix_app/screens/home.dart';
+import 'package:tourix_app/screens/planned_trips.dart';
+import 'package:tourix_app/screens/ticket_screen.dart';
 import 'signup.dart'; // Ensure this file exists
 
 class LoginPage extends StatefulWidget {
@@ -47,17 +49,23 @@ class _LoginPageState extends State<LoginPage> {
         throw Exception("User data not found in Firestore!");
       }
 
-      Future<String?> getUserID() async {
-        User? user = FirebaseAuth.instance.currentUser;
-        print(user?.uid);
-        return user?.uid;
+      // 3️⃣ Get user role
+      String role = userDoc["role"];
+      String uid = userCredential.user!.uid; // Get the user UID
+
+      // 4️⃣ Navigate to different screens based on role
+      if (role == "User") {
+        Navigator.pushReplacement(context,
+            MaterialPageRoute(builder: (context) => TicketScreen(userId: uid)));
+      } else if (role == "Agency") {
+        Navigator.pushReplacement(context,
+            MaterialPageRoute(builder: (context) => const PlannedTrips()));
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+              content: Text("Invalid role, please contact support.")),
+        );
       }
-
-      getUserID();
-
-      // 3️⃣ Navigate to home screen
-      Navigator.push(
-          context, MaterialPageRoute(builder: (context) => const Home()));
 
       print("✅ Login successful!");
     } catch (e) {
@@ -159,7 +167,7 @@ class _LoginPageState extends State<LoginPage> {
                 ),
               ),
               child: isLoading
-                  ? CircularProgressIndicator(
+                  ? const CircularProgressIndicator(
                       color: Colors.white) // Show loader
                   : const Text("Login"),
             ),

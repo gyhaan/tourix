@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:tourix_app/screens/ticket_details.dart';
 import '../widgets/TopBar.dart';
 import '../widgets/BottomBar.dart';
-import '../widgets/Searchbar.dart';
 import '../widgets/TicketOptions.dart';
 
 class Search extends StatefulWidget {
@@ -13,34 +15,112 @@ class Search extends StatefulWidget {
 
 class _SearchState extends State<Search> {
   final TextEditingController _searchController = TextEditingController();
-  List<Map<String, String>> trips = [
-    {'trip': 'Rwamagana-Nyagatare', 'agency': 'Volcano'},
-    {'trip': 'Kigali-Rwamagana', 'agency': 'Kigali Bus'},
-    {'trip': 'Nyagatare-Kigali', 'agency': 'Nyagatare Express'},
-    {'trip': 'Musanze-Kigali', 'agency': 'Musanze Travels'},
-    // Add more trips as needed
-  ];
-
-  List<Map<String, String>> filteredTrips = [];
+  List<Map<String, dynamic>> trips = [];
+  List<Map<String, dynamic>> filteredTrips = [];
+  bool isLoading = true;
+  String errorMessage = '';
 
   @override
   void initState() {
     super.initState();
-    filteredTrips = trips; // Initially show all trips
+    _fetchTrips();
+  }
+
+  Future<void> _fetchTrips() async {
+    try {
+      QuerySnapshot tripSnapshot =
+          await FirebaseFirestore.instance.collection('trips').get();
+
+      List<Map<String, dynamic>> loadedTrips = [];
+
+      for (var tripDoc in tripSnapshot.docs) {
+        DocumentReference tripRef =
+            FirebaseFirestore.instance.collection('trips').doc(tripDoc.id);
+
+        String departureCity =
+            tripDoc['departureCity']?.toString() ?? 'Unknown';
+        String destinationCity =
+            tripDoc['destinationCity']?.toString() ?? 'Unknown';
+        String tripRoute = "$departureCity - $destinationCity";
+
+        String agencyName = "Unknown Agency";
+
+        if (tripDoc['agencyID'] is DocumentReference) {
+          DocumentReference agencyRef = tripDoc['agencyID'];
+
+          try {
+            DocumentSnapshot agencyDoc = await agencyRef.get();
+            if (agencyDoc.exists) {
+              var agencyData = agencyDoc.data() as Map<String, dynamic>?;
+              agencyName = agencyData?['name'] ?? 'Unknown Agency';
+            }
+          } catch (e) {
+            agencyName = 'Unknown Agency';
+          }
+        }
+
+        loadedTrips.add({
+          'tripID': tripRef, // Store trip as Firestore reference
+          'trip': tripRoute,
+          'agency': agencyName,
+        });
+      }
+
+      setState(() {
+        trips = loadedTrips;
+        filteredTrips = loadedTrips;
+        isLoading = false;
+      });
+    } catch (error) {
+      setState(() {
+        errorMessage = "Failed to load trips. Please try again.";
+        isLoading = false;
+      });
+    }
+  }
+
+  Future<void> _createBooking(DocumentReference tripRef) async {
+    try {
+      User? user = FirebaseAuth.instance.currentUser;
+      if (user == null) {
+        throw Exception("User not logged in");
+      }
+
+      // Store both travellerID and tripID as Firestore references
+      DocumentReference travellerRef =
+          FirebaseFirestore.instance.collection('users').doc(user.uid);
+
+      DocumentReference bookingRef =
+          await FirebaseFirestore.instance.collection('booking').add({
+        'travellerID': travellerRef, // Stored as reference
+        'tripID': tripRef, // Stored as reference
+        'active': false,
+        'createdAt': FieldValue.serverTimestamp(),
+      });
+
+      String bookingDocID = bookingRef.id;
+
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => TravellersPage(bookingDocID: bookingDocID),
+        ),
+      );
+    } catch (error) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Error creating booking: $error")),
+      );
+    }
   }
 
   void _filterTrips(String query) {
-    if (query.isEmpty) {
-      setState(() {
-        filteredTrips = trips; // Show all trips if query is empty
-      });
-    } else {
-      setState(() {
-        filteredTrips = trips.where((trip) {
-          return trip['trip']!.toLowerCase().contains(query.toLowerCase());
-        }).toList();
-      });
-    }
+    setState(() {
+      filteredTrips = query.isEmpty
+          ? trips
+          : trips.where((trip) {
+              return trip['trip']!.toLowerCase().contains(query.toLowerCase());
+            }).toList();
+    });
   }
 
   @override
@@ -63,21 +143,33 @@ class _SearchState extends State<Search> {
             ),
             const SizedBox(height: 10.0),
             Expanded(
-              // ⬅ Wrap ListView.builder in Expanded
-              child: ListView.builder(
-                itemCount: filteredTrips.length,
-                itemBuilder: (context, index) {
-                  return Column(
-                    children: [
-                      TicketOptions(
-                        trip: filteredTrips[index]['trip']!,
-                        agency: filteredTrips[index]['agency']!,
-                      ),
-                      const SizedBox(height: 15.0),
-                    ],
-                  );
-                },
-              ),
+              child: isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : errorMessage.isNotEmpty
+                      ? Center(
+                          child: Text(errorMessage,
+                              style: const TextStyle(color: Colors.red)),
+                        )
+                      : filteredTrips.isEmpty
+                          ? const Center(child: Text("No trips available."))
+                          : ListView.builder(
+                              itemCount: filteredTrips.length,
+                              itemBuilder: (context, index) {
+                                return Column(
+                                  children: [
+                                    GestureDetector(
+                                      onTap: () => _createBooking(
+                                          filteredTrips[index]['tripID']),
+                                      child: TicketOptions(
+                                        trip: filteredTrips[index]['trip']!,
+                                        agency: filteredTrips[index]['agency']!,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 15.0),
+                                  ],
+                                );
+                              },
+                            ),
             ),
           ],
         ),

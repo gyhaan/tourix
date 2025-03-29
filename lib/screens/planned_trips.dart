@@ -149,7 +149,7 @@ class PlannedTrips extends StatelessWidget {
           ),
         ],
       ),
-      bottomNavigationBar: BottomNavigationBarWidget(),
+      bottomNavigationBar: const BottomNavigationBarWidget(),
     );
   }
 }
