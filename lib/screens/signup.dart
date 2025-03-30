@@ -73,7 +73,10 @@ class _SignUpPageState extends State<SignUpPage> {
       } else if (selectedRole == "Agency") {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => const PlannedTrips()),
+          MaterialPageRoute(
+              builder: (context) => PlannedTrips(
+                    userId: uid,
+                  )),
         );
       }
     } catch (e) {

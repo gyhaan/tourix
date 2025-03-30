@@ -58,8 +58,12 @@ class _LoginPageState extends State<LoginPage> {
         Navigator.pushReplacement(context,
             MaterialPageRoute(builder: (context) => TicketScreen(userId: uid)));
       } else if (role == "Agency") {
-        Navigator.pushReplacement(context,
-            MaterialPageRoute(builder: (context) => const PlannedTrips()));
+        Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+                builder: (context) => PlannedTrips(
+                      userId: uid,
+                    )));
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(

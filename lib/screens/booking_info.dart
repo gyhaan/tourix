@@ -1,171 +1,124 @@
 import 'package:flutter/material.dart';
-import 'package:tourix_app/models/bookInfo.dart';
-import 'package:tourix_app/widgets/bottom_bar.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:tourix_app/screens/ticket_screen.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
-class BookingInfoScreen extends StatelessWidget {
-  final BookingInfo bookingInfo;
+class BookingInfoScreen extends StatefulWidget {
+  final String bookingId;
 
-  const BookingInfoScreen({
-    Key? key,
-    required this.bookingInfo,
-  }) : super(key: key);
+  const BookingInfoScreen({Key? key, required this.bookingId})
+      : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        backgroundColor: const Color(0xFF3630A1),
-        elevation: 0,
-        title: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(5),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(5),
-              ),
-              child: const Icon(Icons.home, color: Color(0xFF3630A1), size: 20),
-            ),
-            const SizedBox(width: 8),
-            const Text(
-              'Tourix',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ],
-        ),
-      ),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            children: [
-              // Booking Info Section
-              const Text(
-                'Booking Info',
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              const SizedBox(height: 24),
+  _BookingInfoScreenState createState() => _BookingInfoScreenState();
+}
 
-              // Booking Info Details
-              Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                decoration: BoxDecoration(
-                  color: Colors.grey[100],
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Column(
-                  children: [
-                    _buildInfoRow('Name:', bookingInfo.userName),
-                    const SizedBox(height: 12),
-                    _buildInfoRow('Departure Time:', bookingInfo.departureTime),
-                    const SizedBox(height: 12),
-                    _buildInfoRow('From:', bookingInfo.fromLocation),
-                    const SizedBox(height: 12),
-                    _buildInfoRow('To:', bookingInfo.toLocation),
-                    const SizedBox(height: 12),
-                    _buildInfoRow('Agency:', bookingInfo.agencyName),
-                    const SizedBox(height: 12),
-                    _buildInfoRow(
-                        'Seats Booked:', bookingInfo.seatsBooked.toString()),
-                    const SizedBox(height: 12),
-                    _buildInfoRow('Price:', bookingInfo.price),
-                  ],
-                ),
-              ),
+class _BookingInfoScreenState extends State<BookingInfoScreen> {
+  bool _isLoading = true;
+  Map<String, dynamic>? bookingData;
+  Map<String, dynamic>? tripData;
+  Map<String, dynamic>? agencyData;
+  String? travellerName;
+  final TextEditingController _phoneController = TextEditingController();
 
-              const SizedBox(height: 32),
+  @override
+  void initState() {
+    super.initState();
+    _fetchBookingInfo();
+  }
 
-              // Payment Section
-              const Text(
-                'Payment',
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              const SizedBox(height: 24),
+  Future<void> _fetchBookingInfo() async {
+    try {
+      // Fetch booking document
+      DocumentSnapshot bookingSnapshot = await FirebaseFirestore.instance
+          .collection('booking')
+          .doc(widget.bookingId)
+          .get();
+      if (!bookingSnapshot.exists) {
+        setState(() => _isLoading = false);
+        return;
+      }
+      bookingData = bookingSnapshot.data() as Map<String, dynamic>;
 
-              // Phone Number Input
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
-                child: Row(
-                  children: [
-                    const Text(
-                      'Phone Nbr:',
-                      style: TextStyle(
-                        fontWeight: FontWeight.w500,
-                        fontSize: 18,
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: TextField(
-                        controller: TextEditingController(
-                            text: bookingInfo.phoneNumber),
-                        decoration: InputDecoration(
-                          contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 12, vertical: 14),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                            borderSide:
-                                const BorderSide(color: Colors.grey, width: 1),
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                            borderSide:
-                                const BorderSide(color: Colors.grey, width: 1),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                            borderSide: const BorderSide(
-                                color: Color(0xFF3630A1), width: 1.5),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 32),
+      // Fetch trip document using tripID reference
+      DocumentSnapshot tripSnapshot = await bookingData?['tripID'].get();
+      if (tripSnapshot.exists) {
+        tripData = tripSnapshot.data() as Map<String, dynamic>;
 
-              // Proceed to Checkout Button
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
-                child: ElevatedButton(
-                  onPressed: () {},
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF3630A1),
-                    minimumSize: const Size(double.infinity, 50),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                  child: const Text(
-                    'Proceed to Checkout',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 24),
-            ],
+        // Fetch agency document using agencyID reference from trip
+        DocumentSnapshot agencySnapshot = await tripData?['agencyID'].get();
+        if (agencySnapshot.exists) {
+          agencyData = agencySnapshot.data() as Map<String, dynamic>;
+        }
+      }
+
+      // Fetch traveller's full name using travellerID reference
+      DocumentSnapshot travellerSnapshot =
+          await bookingData?['travellerID'].get();
+      if (travellerSnapshot.exists) {
+        travellerName = travellerSnapshot['fullName'];
+      }
+
+      setState(() => _isLoading = false);
+    } catch (error) {
+      setState(() => _isLoading = false);
+      print("Error fetching data: $error");
+    }
+  }
+
+  // Function to validate phone number
+  bool _isValidPhoneNumber(String phoneNumber) {
+    final RegExp regex = RegExp(r'^(078|072|073)\d{7}$');
+    return regex.hasMatch(phoneNumber);
+  }
+
+  // Function to update the booking
+  Future<void> _updateBooking(String phoneNumber) async {
+    if (!_isValidPhoneNumber(phoneNumber)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Please enter a valid phone number")),
+      );
+      return;
+    }
+
+    try {
+      // Update paymentMethod and active status in the booking
+      await FirebaseFirestore.instance
+          .collection('booking')
+          .doc(widget.bookingId)
+          .update({
+        'paymentMethod': phoneNumber, // Store the phone number in paymentMethod
+        'active': true, // Set the active field to true
+      });
+
+      // Optionally, display a confirmation message
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Booking updated successfully")),
+      );
+
+      // Get the current user's ID
+      final userId = FirebaseAuth.instance.currentUser?.uid;
+
+      // If user is logged in, pass the user ID to TicketScreen
+      if (userId != null) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => TicketScreen(userId: userId),
           ),
-        ),
-      ),
-      bottomNavigationBar: const BottomNavigationBarWidget(),
-    );
+        );
+      } else {
+        // Handle case when there is no logged-in user
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("No user is logged in")),
+        );
+      }
+    } catch (e) {
+      print("Error updating booking: $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Failed to update booking")),
+      );
+    }
   }
 
   Widget _buildInfoRow(String label, String value) {
@@ -176,7 +129,6 @@ class BookingInfoScreen extends StatelessWidget {
           style: const TextStyle(
             fontWeight: FontWeight.w500,
             fontSize: 18,
-            color: Colors.black87,
           ),
         ),
         const SizedBox(width: 8),
@@ -185,10 +137,132 @@ class BookingInfoScreen extends StatelessWidget {
           style: const TextStyle(
             fontWeight: FontWeight.w400,
             fontSize: 18,
-            color: Colors.black87,
           ),
         ),
       ],
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: const Color(0xFF3630A1),
+        title:
+            const Text('Booking Info', style: TextStyle(color: Colors.white)),
+      ),
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : SafeArea(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  children: [
+                    const Text('Booking Details',
+                        style: TextStyle(
+                            fontSize: 24, fontWeight: FontWeight.bold)),
+                    const SizedBox(height: 24),
+
+                    // Booking Info Card
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Column(
+                        children: [
+                          _buildInfoRow('Name:', travellerName ?? 'N/A'),
+                          _buildInfoRow(
+                            'Departure Time:',
+                            bookingData?['departureTime'] is Timestamp
+                                ? (bookingData?['departureTime'] as Timestamp)
+                                    .toDate()
+                                    .toString()
+                                : 'N/A',
+                          ),
+                          _buildInfoRow(
+                              'From:', tripData?['departureCity'] ?? 'N/A'),
+                          _buildInfoRow(
+                              'To:', tripData?['destinationCity'] ?? 'N/A'),
+                          _buildInfoRow(
+                              'Agency:', agencyData?['name'] ?? 'N/A'),
+                          _buildInfoRow(
+                              'Seats Booked:',
+                              bookingData?['seatsBooked']?.length.toString() ??
+                                  '0'),
+                          _buildInfoRow('Price:',
+                              tripData?['price']?.toString() ?? 'N/A'),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 32),
+
+                    // Phone Number Input Field
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 24),
+                      child: Row(
+                        children: [
+                          const Text(
+                            'Phone Nbr:',
+                            style: TextStyle(
+                              fontWeight: FontWeight.w500,
+                              fontSize: 18,
+                            ),
+                          ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: TextField(
+                              controller: _phoneController,
+                              decoration: InputDecoration(
+                                contentPadding: const EdgeInsets.symmetric(
+                                    horizontal: 12, vertical: 14),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                  borderSide: const BorderSide(
+                                      color: Colors.grey, width: 1),
+                                ),
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                  borderSide: const BorderSide(
+                                      color: Colors.grey, width: 1),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                  borderSide: const BorderSide(
+                                      color: Color(0xFF3630A1), width: 1.5),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 32),
+
+                    // Proceed to Checkout Button
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 24),
+                      child: ElevatedButton(
+                        onPressed: () {
+                          _updateBooking(_phoneController.text);
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF3630A1),
+                          minimumSize: const Size(double.infinity, 50),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                        child: const Text('Proceed to Checkout',
+                            style: TextStyle(color: Colors.white)),
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                  ],
+                ),
+              ),
+            ),
     );
   }
 }

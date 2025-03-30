@@ -1,47 +1,60 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:tourix_app/models/planned_trips_info.dart';
 import 'package:tourix_app/widgets/bottom_bar.dart';
 import 'package:tourix_app/widgets/planned_trip_card.dart';
 
-class PlannedTrips extends StatelessWidget {
-  const PlannedTrips({Key? key}) : super(key: key);
+class PlannedTrips extends StatefulWidget {
+  final String userId;
+  const PlannedTrips({Key? key, required this.userId}) : super(key: key);
+
+  @override
+  _PlannedTripsState createState() => _PlannedTripsState();
+}
+
+class _PlannedTripsState extends State<PlannedTrips> {
+  Future<List<PlannedTripsInfo>> fetchPlannedTrips() async {
+    try {
+      QuerySnapshot tripSnapshot =
+          await FirebaseFirestore.instance.collection("trips").get();
+
+      List<PlannedTripsInfo> trips = [];
+
+      for (var doc in tripSnapshot.docs) {
+        var data = doc.data() as Map<String, dynamic>;
+        String origin = data["departureCity"] ?? "Unknown";
+        String destination = data["destinationCity"] ?? "Unknown";
+        int price = data["price"] ?? 0;
+        int seats = data["totalSeats"] ?? 0;
+
+        // Fetch agency name
+        String agencyName = "Unknown Agency";
+        if (data.containsKey("agencyID")) {
+          DocumentReference agencyRef = data["agencyID"];
+          DocumentSnapshot agencySnapshot = await agencyRef.get();
+          var agencyData = agencySnapshot.data() as Map<String, dynamic>?;
+          agencyName = agencyData?["fullName"] ?? "Unknown Agency";
+        }
+
+        trips.add(PlannedTripsInfo(
+          seats: seats,
+          origin: origin,
+          destination: destination,
+          price: price,
+          busType: agencyName,
+        ));
+      }
+
+      return trips;
+    } catch (e) {
+      print("Error fetching planned trips: $e");
+      return [];
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    // Sample ticket data
-    final List<PlannedTripsInfo> plannedTrips = [
-      PlannedTripsInfo(
-          seats: 50,
-          period: "2h30min",
-          origin: "Rwamagana",
-          destination: "Nyagatare",
-          price: 5000,
-          busType: "Volcano"),
-      PlannedTripsInfo(
-          seats: 50,
-          period: "2h30min",
-          origin: "Rwamagana",
-          destination: "Nyagatare",
-          price: 5000,
-          busType: "Volcano"),
-      PlannedTripsInfo(
-          seats: 50,
-          period: "2h30min",
-          origin: "Rwamagana",
-          destination: "Nyagatare",
-          price: 5000,
-          busType: "Volcano"),
-      PlannedTripsInfo(
-          seats: 50,
-          period: "2h30min",
-          origin: "Rwamagana",
-          destination: "Nyagatare",
-          price: 5000,
-          busType: "Volcano"),
-    ];
-
     return Scaffold(
-      // AppBar with Tourix logo and notification icon
       appBar: AppBar(
         automaticallyImplyLeading: false,
         backgroundColor: const Color(0xFF3630A1),
@@ -55,7 +68,6 @@ class PlannedTrips extends StatelessWidget {
                 borderRadius: BorderRadius.circular(5),
               ),
               child: const Icon(Icons.home, color: Color(0xFF3630A1), size: 20),
-              // Later replace with: Image.asset('assets/logo.png', width: 24, height: 24)
             ),
             const SizedBox(width: 8),
             const Text(
@@ -77,7 +89,6 @@ class PlannedTrips extends StatelessWidget {
       ),
       body: Column(
         children: [
-          // Header image container with "Upcoming Tickets" text
           Container(
             height: 140,
             width: double.infinity,
@@ -94,7 +105,6 @@ class PlannedTrips extends StatelessWidget {
               ),
             ),
             child: const Center(
-              // Use Center widget to center the text
               child: Text(
                 'Planned Trips',
                 style: TextStyle(
@@ -105,44 +115,30 @@ class PlannedTrips extends StatelessWidget {
               ),
             ),
           ),
-
-          Padding(
-            padding: const EdgeInsets.fromLTRB(24, 16, 24, 16),
-            child: Align(
-              alignment: Alignment.centerRight,
-              child: ElevatedButton(
-                onPressed: () {},
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF3630A1),
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                ),
-                child: const Text(
-                  'Create Trip',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w400,
-                  ),
-                ),
-              ),
-            ),
-          ),
-
-          // Ticket List
           Expanded(
-            child: ListView.builder(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
-              itemCount: plannedTrips.length,
-              itemBuilder: (context, index) {
-                return Padding(
-                  padding: const EdgeInsets.only(bottom: 16),
-                  child: PlannedTripCard(
-                    trip: plannedTrips[index],
-                  ),
+            child: FutureBuilder<List<PlannedTripsInfo>>(
+              future: fetchPlannedTrips(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                } else if (snapshot.hasError) {
+                  return const Center(child: Text("Error fetching trips"));
+                } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                  return const Center(
+                      child: Text("No planned trips available"));
+                }
+
+                return ListView.builder(
+                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  itemCount: snapshot.data!.length,
+                  itemBuilder: (context, index) {
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 16),
+                      child: PlannedTripCard(
+                        trip: snapshot.data![index],
+                      ),
+                    );
+                  },
                 );
               },
             ),

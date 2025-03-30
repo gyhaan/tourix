@@ -29,12 +29,13 @@ class _TicketScreenState extends State<TicketScreen> {
       final userRef = FirebaseFirestore.instance.doc("users/$userId");
       print("Fetching tickets for userRef: $userRef");
 
-      // Query upcoming tickets
+      // Query upcoming tickets (without `active` filter)
       QuerySnapshot querySnapshot = await FirebaseFirestore.instance
           .collection("booking")
           .where("travellerID", isEqualTo: userRef) // Reference comparison
           .where("departureTime",
-              isGreaterThan: DateTime.now()) // Future tickets
+              isGreaterThan:
+                  Timestamp.fromDate(DateTime.now())) // Future tickets
           .orderBy("departureTime",
               descending: false) // Sort by upcoming departures
           .get();
@@ -43,41 +44,45 @@ class _TicketScreenState extends State<TicketScreen> {
 
       // Map Firestore documents to TicketInfo objects
       List<Map<String, dynamic>> tickets = [];
+
       for (var doc in querySnapshot.docs) {
+        var data = doc.data() as Map<String, dynamic>;
+
+        // Step 1: Filter active bookings in Dart
+        if (data["active"] != true) continue; // Skip inactive bookings
+
         print("\n--- Processing Booking Document ---");
         print("Booking Document ID: ${doc.id}");
-        var data = doc.data() as Map<String, dynamic>;
         print("Booking Data: $data");
 
-        // Step 1: Resolve the tripID reference to get the trip document
-        DocumentReference tripRef =
-            data["tripID"]; // This is a DocumentReference
+        // Step 2: Fetch trip document asynchronously
+        DocumentReference tripRef = data["tripID"];
         print("Fetching Trip Document with tripID: $tripRef");
+
+        // Fetch trip document
         DocumentSnapshot tripSnapshot = await tripRef.get();
-        var tripData = tripSnapshot.data() as Map<String, dynamic>?;
-        print("Trip Document Data: $tripData");
+        var tripData = tripSnapshot.data() as Map<String, dynamic>? ?? {};
 
-        // Extract origin and destination from the trip document
-        String origin = tripData?["departureCity"] ?? "Unknown";
-        String destination = tripData?["destinationCity"] ?? "Unknown";
-        print("Extracted Origin: $origin, Destination: $destination");
+        // Extract trip details
+        String origin = tripData["departureCity"] ?? "Unknown";
+        String destination = tripData["destinationCity"] ?? "Unknown";
 
-        // Step 2: Resolve the agencyID reference inside the trip document
+        // Step 3: Fetch agency document asynchronously (if available)
         String agencyName = "Unknown Agency";
-        if (tripData != null && tripData.containsKey("agencyID")) {
-          DocumentReference agencyRef =
-              tripData["agencyID"]; // This is a DocumentReference
+        if (tripData.containsKey("agencyID")) {
+          DocumentReference agencyRef = tripData["agencyID"];
           print("Fetching Agency Document with agencyID: $agencyRef");
+
+          // Fetch agency document
           DocumentSnapshot agencySnapshot = await agencyRef.get();
-          var agencyData = agencySnapshot.data() as Map<String, dynamic>?;
-          print("Agency Document Data: $agencyData");
-          // Assuming the full name is stored in a field called "fullName" in the users collection
-          agencyName = agencyData?["name"] ?? "Unknown Agency";
-          print("Extracted Agency Name: $agencyName");
-        } else {
-          print("No agencyID found in trip document or tripData is null.");
+          var agencyData = agencySnapshot.data() as Map<String, dynamic>? ?? {};
+          agencyName = agencyData["name"] ?? "Unknown Agency";
         }
 
+        // Extract passenger count
+        int passengers = (data["seatsBooked"] as List).length;
+
+        // Construct ticket map
         var ticket = {
           "date": data["departureTime"]
               .toDate()
@@ -87,18 +92,14 @@ class _TicketScreenState extends State<TicketScreen> {
               .toDate()
               .toString()
               .split(" ")[1], // Extract time
-          "ticketCode": doc.id
-              .substring(0, 5), // Use Firestore document ID as ticket code
-          "origin": origin, // From trip document
-          "destination": destination, // From trip document
-          "passengers": (data["seatsBooked"] as List).length,
-          // "busType": data["busType"] ?? "Standard",
-          "busType": agencyName, // Add the agency name to the map
+          "ticketCode": doc.id.substring(0, 5), // Shortened ticket code
+          "origin": origin,
+          "destination": destination,
+          "passengers": passengers,
+          "busType": agencyName, // Use agency name instead of busType
         };
 
-        print(
-            "Created TicketInfo: { date: ${data["departureTime"].toDate().toString().split(" ")[0]}, time: ${data["departureTime"].toDate().toString().split(" ")[1]}, ticketCode: ${doc.id}, origin: ${origin}, destination: ${destination}, passengers: ${(data["seatsBooked"] as List).length}, busType: ${data["busType"]} }");
-
+        print("Created TicketInfo: $ticket");
         tickets.add(ticket);
       }
 

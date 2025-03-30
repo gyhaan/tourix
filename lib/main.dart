@@ -39,10 +39,7 @@ class MyApp extends StatelessWidget {
         ),
       ),
       debugShowCheckedModeBanner: false,
-      home: const SeatSelectionPage(
-        travellerData: [],
-        bookingDocID: "hello",
-      ),
+      home: LoginPage(),
     );
   }
 }
