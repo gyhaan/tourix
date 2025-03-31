@@ -164,6 +164,7 @@ class _SeatSelectionPageState extends State<SeatSelectionPage> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: const Color(0xFF3630A1),
+        iconTheme: const IconThemeData(color: Colors.white),
         elevation: 0,
         title: Row(
           children: [

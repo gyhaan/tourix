@@ -155,6 +155,7 @@ class _TravellersPageState extends State<TravellersPage> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: const Color(0xFF3630A1),
+        iconTheme: const IconThemeData(color: Colors.white),
         elevation: 0,
         title: Row(
           children: [
@@ -163,7 +164,7 @@ class _TravellersPageState extends State<TravellersPage> {
               height: 32,
             ),
             const SizedBox(width: 8),
-            const Text("Tourix"),
+            const Text("Tourix", style: TextStyle(color: Colors.white))
           ],
         ),
       ),

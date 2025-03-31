@@ -1,63 +1,65 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart'; // Import Firebase Auth
+import 'package:firebase_auth/firebase_auth.dart'; // ✅ Import FirebaseAuth
 import 'package:tourix_app/screens/Search.dart';
 import 'package:tourix_app/widgets/bottom_bar.dart';
 import 'package:tourix_app/widgets/no_tickets_available.dart';
 import '../models/ticket_info.dart';
 import '../widgets/ticket_card.dart';
 
-class TicketScreen extends StatefulWidget {
-  const TicketScreen({Key? key}) : super(key: key);
+class PreviousTicketScreen extends StatefulWidget {
+  const PreviousTicketScreen({Key? key}) : super(key: key);
 
   @override
-  _TicketScreenState createState() => _TicketScreenState();
+  _PreviousTicketScreenState createState() => _PreviousTicketScreenState();
 }
 
-class _TicketScreenState extends State<TicketScreen> {
+class _PreviousTicketScreenState extends State<PreviousTicketScreen> {
   late Future<List<Map<String, dynamic>>> _ticketsFuture;
 
   @override
   void initState() {
     super.initState();
-    _ticketsFuture = fetchUpcomingTickets();
+    _fetchUserTickets();
   }
 
-  Future<List<Map<String, dynamic>>> fetchUpcomingTickets() async {
-    try {
-      // Get current user
-      User? user = FirebaseAuth.instance.currentUser;
-      if (user == null) {
-        print("No authenticated user found.");
-        return [];
-      }
+  void _fetchUserTickets() {
+    final user = FirebaseAuth.instance.currentUser; // ✅ Get logged-in user
+    if (user != null) {
+      setState(() {
+        _ticketsFuture = fetchPreviousTickets(user.uid);
+      });
+    } else {
+      print("No user logged in.");
+      setState(() {
+        _ticketsFuture = Future.value([]);
+      });
+    }
+  }
 
-      String userId = user.uid;
+  Future<List<Map<String, dynamic>>> fetchPreviousTickets(String userId) async {
+    try {
       final userRef = FirebaseFirestore.instance.doc("users/$userId");
       print("Fetching tickets for userRef: $userRef");
 
-      // Query upcoming tickets
       QuerySnapshot querySnapshot = await FirebaseFirestore.instance
           .collection("bookings")
           .where("travellerID", isEqualTo: userRef)
           .where("departureTime",
-              isGreaterThan: Timestamp.fromDate(DateTime.now()))
+              isLessThanOrEqualTo:
+                  Timestamp.fromDate(DateTime.now())) // Past tickets
           .orderBy("departureTime", descending: false)
           .get();
 
-      print("Found ${querySnapshot.docs.length} upcoming bookings.");
+      print("Found ${querySnapshot.docs.length} previous bookings.");
 
       List<Map<String, dynamic>> tickets = [];
 
       for (var doc in querySnapshot.docs) {
         var data = doc.data() as Map<String, dynamic>;
-        if (data["active"] != true) continue;
 
-        print("\n--- Processing Booking Document ---");
-        print("Booking Document ID: ${doc.id}");
-        print("Booking Data: $data");
+        if (data["active"] != true) continue; // Filter out inactive tickets
 
-        // Fetch trip details
         DocumentReference tripRef = data["tripID"];
         DocumentSnapshot tripSnapshot = await tripRef.get();
         var tripData = tripSnapshot.data() as Map<String, dynamic>? ?? {};
@@ -65,7 +67,6 @@ class _TicketScreenState extends State<TicketScreen> {
         String origin = tripData["departureCity"] ?? "Unknown";
         String destination = tripData["destinationCity"] ?? "Unknown";
 
-        // Fetch agency details
         String agencyName = "Unknown Agency";
         if (tripData.containsKey("agencyID")) {
           DocumentReference agencyRef = tripData["agencyID"];
@@ -86,7 +87,6 @@ class _TicketScreenState extends State<TicketScreen> {
           "busType": agencyName,
         };
 
-        print("Created TicketInfo: $ticket");
         tickets.add(ticket);
       }
 
@@ -94,7 +94,7 @@ class _TicketScreenState extends State<TicketScreen> {
       return tickets;
     } catch (e) {
       print("Error fetching tickets: $e");
-      throw e;
+      return [];
     }
   }
 
@@ -143,7 +143,7 @@ class _TicketScreenState extends State<TicketScreen> {
               color: Color(0xFF3630A1),
               image: DecorationImage(
                 image: NetworkImage(
-                    'https://images.unsplash.com/photo-1494515843206-f3117d3f51b7?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fA%3D%3D&auto=format&fit=crop&w=1172&q=80'),
+                    'https://images.unsplash.com/photo-1494515843206-f3117d3f51b7?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1172&q=80'),
                 fit: BoxFit.cover,
                 colorFilter: ColorFilter.mode(
                   Colors.black26,
@@ -153,7 +153,7 @@ class _TicketScreenState extends State<TicketScreen> {
             ),
             child: const Center(
               child: Text(
-                'Upcoming Tickets',
+                'Previous Tickets',
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 24,
@@ -195,7 +195,7 @@ class _TicketScreenState extends State<TicketScreen> {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(child: CircularProgressIndicator());
                 } else if (snapshot.hasError) {
-                  return Center(child: Text("Failed to load tickets."));
+                  return const Center(child: Text("Failed to load tickets."));
                 } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
                   return const NoTicketsAvailable();
                 }

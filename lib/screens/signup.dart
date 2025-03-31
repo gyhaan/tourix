@@ -66,8 +66,7 @@ class _SignUpPageState extends State<SignUpPage> {
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
-            builder: (context) =>
-                TicketScreen(userId: uid), // Pass the UID here
+            builder: (context) => const TicketScreen(), // Pass the UID here
           ),
         );
       } else if (selectedRole == "Agency") {

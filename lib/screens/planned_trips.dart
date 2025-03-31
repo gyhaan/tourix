@@ -79,6 +79,7 @@ class _PlannedTripsState extends State<PlannedTrips> {
           appBar: AppBar(
             automaticallyImplyLeading: false,
             backgroundColor: const Color(0xFF3630A1),
+            iconTheme: const IconThemeData(color: Colors.white),
             elevation: 0,
             title: Row(
               children: [

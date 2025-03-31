@@ -104,7 +104,7 @@ class _BookingInfoScreenState extends State<BookingInfoScreen> {
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
-            builder: (context) => TicketScreen(userId: userId),
+            builder: (context) => const TicketScreen(),
           ),
         );
       } else {
@@ -148,6 +148,7 @@ class _BookingInfoScreenState extends State<BookingInfoScreen> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: const Color(0xFF3630A1),
+        iconTheme: const IconThemeData(color: Colors.white),
         title:
             const Text('Booking Info', style: TextStyle(color: Colors.white)),
       ),

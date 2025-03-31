@@ -56,7 +56,7 @@ class _LoginPageState extends State<LoginPage> {
       // 4️⃣ Navigate to different screens based on role
       if (role == "user") {
         Navigator.pushReplacement(context,
-            MaterialPageRoute(builder: (context) => TicketScreen(userId: uid)));
+            MaterialPageRoute(builder: (context) => const TicketScreen()));
       } else if (role == "agency") {
         Navigator.pushReplacement(
             context,

@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:tourix_app/screens/previous_ticket_screen.dart';
+import 'package:tourix_app/screens/profile.dart';
+import 'package:tourix_app/screens/ticket_screen.dart';
 import 'navigation_item.dart';
 
 class BottomNavigationBarWidget extends StatelessWidget {
@@ -17,16 +20,39 @@ class BottomNavigationBarWidget extends StatelessWidget {
           ),
         ],
       ),
-      child: const Row(
+      child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          NavigationItem(icon: Icons.home, label: 'Home', isActive: true),
           NavigationItem(
-              icon: Icons.bookmark_border, label: 'Bookings', isActive: false),
+              icon: Icons.bookmark_border,
+              label: 'Bookings',
+              isActive: false,
+              onTap: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const TicketScreen()));
+              }),
           NavigationItem(
-              icon: Icons.person_outline, label: 'Profile', isActive: false),
+              icon: Icons.person_outline,
+              label: 'Profile',
+              isActive: false,
+              onTap: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const ProfilePage()));
+              }),
           NavigationItem(
-              icon: Icons.history, label: 'History', isActive: false),
+              icon: Icons.history,
+              label: 'History',
+              isActive: false,
+              onTap: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const PreviousTicketScreen()));
+              }),
         ],
       ),
     );
