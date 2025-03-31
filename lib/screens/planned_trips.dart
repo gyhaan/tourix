@@ -144,7 +144,7 @@ class _PlannedTripsState extends State<PlannedTrips> {
                   alignment: Alignment.centerRight,
                   child: ElevatedButton(
                     onPressed: () {
-                      Navigator.pushReplacement(
+                      Navigator.push(
                         context,
                         MaterialPageRoute(
                             builder: (context) => const Booking()),

@@ -34,7 +34,7 @@ class NoTicketsAvailable extends StatelessWidget {
           // Book Ticket Button
           ElevatedButton(
             onPressed: () {
-              Navigator.pushReplacement(
+              Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => const Search()),
               );

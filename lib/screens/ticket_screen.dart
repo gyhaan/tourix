@@ -184,7 +184,7 @@ class _TicketScreenState extends State<TicketScreen> {
               alignment: Alignment.centerRight,
               child: ElevatedButton(
                 onPressed: () {
-                  Navigator.pushReplacement(
+                  Navigator.push(
                     context,
                     MaterialPageRoute(builder: (context) => const Search()),
                   );
