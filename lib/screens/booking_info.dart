@@ -31,7 +31,7 @@ class _BookingInfoScreenState extends State<BookingInfoScreen> {
     try {
       // Fetch booking document
       DocumentSnapshot bookingSnapshot = await FirebaseFirestore.instance
-          .collection('booking')
+          .collection('bookings')
           .doc(widget.bookingId)
           .get();
       if (!bookingSnapshot.exists) {
@@ -56,7 +56,7 @@ class _BookingInfoScreenState extends State<BookingInfoScreen> {
       DocumentSnapshot travellerSnapshot =
           await bookingData?['travellerID'].get();
       if (travellerSnapshot.exists) {
-        travellerName = travellerSnapshot['fullName'];
+        travellerName = travellerSnapshot['name'];
       }
 
       setState(() => _isLoading = false);
@@ -84,7 +84,7 @@ class _BookingInfoScreenState extends State<BookingInfoScreen> {
     try {
       // Update paymentMethod and active status in the booking
       await FirebaseFirestore.instance
-          .collection('booking')
+          .collection('bookings')
           .doc(widget.bookingId)
           .update({
         'paymentMethod': phoneNumber, // Store the phone number in paymentMethod

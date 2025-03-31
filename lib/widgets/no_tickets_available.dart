@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:tourix_app/screens/Search.dart';
 
 class NoTicketsAvailable extends StatelessWidget {
   const NoTicketsAvailable({Key? key}) : super(key: key);
@@ -19,7 +20,7 @@ class NoTicketsAvailable extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           // Message
-          Text(
+          const Text(
             'Oops, looks like you have no upcoming tickets',
             textAlign: TextAlign.center,
             style: TextStyle(
@@ -33,7 +34,10 @@ class NoTicketsAvailable extends StatelessWidget {
           // Book Ticket Button
           ElevatedButton(
             onPressed: () {
-              // Add your button action here
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => const Search()),
+              );
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFF3630A1),

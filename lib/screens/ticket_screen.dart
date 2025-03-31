@@ -31,7 +31,7 @@ class _TicketScreenState extends State<TicketScreen> {
 
       // Query upcoming tickets (without `active` filter)
       QuerySnapshot querySnapshot = await FirebaseFirestore.instance
-          .collection("booking")
+          .collection("bookings")
           .where("travellerID", isEqualTo: userRef) // Reference comparison
           .where("departureTime",
               isGreaterThan:
@@ -184,7 +184,7 @@ class _TicketScreenState extends State<TicketScreen> {
               alignment: Alignment.centerRight,
               child: ElevatedButton(
                 onPressed: () {
-                  Navigator.push(
+                  Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(builder: (context) => const Search()),
                   );

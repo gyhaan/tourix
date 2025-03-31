@@ -50,7 +50,7 @@ class _SignUpPageState extends State<SignUpPage> {
       // 3️⃣ Store additional user details in Firestore
       await FirebaseFirestore.instance.collection("users").doc(uid).set({
         "name": fullNameController.text.trim(),
-        "role": selectedRole,
+        "role": selectedRole!.toLowerCase(),
         "email": emailController.text.trim(),
         "createdAt": Timestamp.now(),
       });

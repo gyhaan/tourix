@@ -54,10 +54,10 @@ class _LoginPageState extends State<LoginPage> {
       String uid = userCredential.user!.uid; // Get the user UID
 
       // 4️⃣ Navigate to different screens based on role
-      if (role == "User") {
+      if (role == "user") {
         Navigator.pushReplacement(context,
             MaterialPageRoute(builder: (context) => TicketScreen(userId: uid)));
-      } else if (role == "Agency") {
+      } else if (role == "agency") {
         Navigator.pushReplacement(
             context,
             MaterialPageRoute(
@@ -180,7 +180,7 @@ class _LoginPageState extends State<LoginPage> {
             // Sign Up Navigation
             GestureDetector(
               onTap: () {
-                Navigator.push(
+                Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(builder: (context) => const SignUpPage()),
                 );

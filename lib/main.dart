@@ -1,17 +1,9 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:tourix_app/firebase_options.dart';
-import 'package:tourix_app/models/bookInfo.dart';
-import 'package:tourix_app/screens/booking_info.dart';
-import 'package:tourix_app/screens/ticket_details.dart';
-import 'package:tourix_app/screens/ticket_seat.dart';
-import 'package:tourix_app/widgets/app.dart';
-import 'dart:async';
-import 'screens/Search.dart';
-import 'screens/AgencyBooking.dart';
 import 'screens/login.dart';
-import 'screens/signup.dart';
-// import './Screens/TicketInfo.dart';
+
+import 'package:google_fonts/google_fonts.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -37,21 +29,12 @@ class MyApp extends StatelessWidget {
           backgroundColor: const Color(0xFF3630A1),
           labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
         ),
+        textTheme: GoogleFonts.interTextTheme(
+          Theme.of(context).textTheme,
+        ),
       ),
       debugShowCheckedModeBanner: false,
       home: LoginPage(),
     );
   }
 }
-
-
-// const BookingInfoScreen(
-//         bookingInfo: BookingInfo(
-//             userName: "Owen",
-//             departureTime: "Volcano",
-//             fromLocation: "Volcano",
-//             toLocation: "Volcano",
-//             agencyName: "Volcano",
-//             seatsBooked: 2,
-//             price: "123"),
-//       ),

@@ -32,14 +32,6 @@ class PlannedTripCard extends StatelessWidget {
                     fontSize: 14,
                   ),
                 ),
-                Text(
-                  trip.period,
-                  style: const TextStyle(
-                    color: primaryColor,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 14,
-                  ),
-                ),
               ],
             ),
             const SizedBox(height: 12),

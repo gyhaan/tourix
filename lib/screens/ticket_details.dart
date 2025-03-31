@@ -65,9 +65,8 @@ class _TravellersPageState extends State<TravellersPage> {
     });
 
     try {
-      // 1️⃣ Get the current booking document
       DocumentSnapshot bookingSnapshot = await FirebaseFirestore.instance
-          .collection('booking')
+          .collection('bookings')
           .doc(widget.bookingDocID)
           .get();
 
@@ -79,7 +78,6 @@ class _TravellersPageState extends State<TravellersPage> {
           bookingSnapshot.data() as Map<String, dynamic>;
       DocumentReference tripRef = bookingData['tripID'];
 
-      // 2️⃣ Fetch trip details to get departure & destination city + availableSeats
       DocumentSnapshot tripSnapshot = await tripRef.get();
 
       if (!tripSnapshot.exists) {
@@ -91,17 +89,10 @@ class _TravellersPageState extends State<TravellersPage> {
       String departureCity = tripData['departureCity'];
       String destinationCity = tripData['destinationCity'];
 
-      // ✅ Ensure `availableSeats` is treated as a list
-      List<dynamic> totalSeats = List.from(tripData['totalSeats'] ?? []);
+      List<dynamic> totalSeats = List.from(tripData['availableSeats'] ?? []);
 
-      print("this line ran");
-      print(totalSeats.length);
-      print(departureCity);
-      print(destinationCity);
-
-      // 3️⃣ Query all active bookings with the same departure time, departure & destination city
       QuerySnapshot bookingsSnapshot = await FirebaseFirestore.instance
-          .collection('booking')
+          .collection('bookings')
           .where('departureTime', isEqualTo: departureDateTime)
           .where('active', isEqualTo: true)
           .get();
@@ -121,26 +112,21 @@ class _TravellersPageState extends State<TravellersPage> {
         }
       }
 
-      // 4️⃣ Flatten booked seats list
       List<dynamic> allBookedSeats = bookedSeats.expand((x) => x).toList();
-
-      // 5️⃣ Check if enough seats are available
       int remainingSeats = totalSeats.length - allBookedSeats.length;
 
       if (travellers.length + 1 > remainingSeats) {
         throw Exception("Not enough seats available for the selected trip.");
       }
 
-      // ✅ Proceed to update Firestore
       await FirebaseFirestore.instance
-          .collection('booking')
+          .collection('bookings')
           .doc(widget.bookingDocID)
           .update({
         'departureTime': departureDateTime,
       });
 
-      // ✅ Navigate to Seat Selection
-      Navigator.push(
+      Navigator.pushReplacement(
         context,
         MaterialPageRoute(
           builder: (context) => SeatSelectionPage(
@@ -173,7 +159,7 @@ class _TravellersPageState extends State<TravellersPage> {
         title: Row(
           children: [
             Image.asset(
-              'assets/images/frame.png', // ✅ your logo image path
+              'assets/images/frame.png',
               height: 32,
             ),
             const SizedBox(width: 8),
@@ -218,6 +204,14 @@ class _TravellersPageState extends State<TravellersPage> {
                 ),
               ),
             ),
+            if (selectedDate != null) ...[
+              const SizedBox(height: 8),
+              Text(
+                "Selected Date: ${DateFormat('EEEE, MMMM d, yyyy').format(selectedDate!)}",
+                style:
+                    const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+              ),
+            ],
             const SizedBox(height: 8),
             DropdownButtonFormField<String>(
               value: selectedTime,
@@ -281,14 +275,9 @@ class _TravellersPageState extends State<TravellersPage> {
                       minimumSize: const Size(double.infinity, 50),
                     ),
                     onPressed: _goToNext,
-                    child: const Text(
-                      "Next",
-                      style: TextStyle(color: Colors.white),
-                    ),
+                    child: const Text("Next",
+                        style: TextStyle(color: Colors.white)),
                   ),
-            const SizedBox(
-              height: 15,
-            ),
           ],
         ),
       ),

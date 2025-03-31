@@ -39,6 +39,7 @@ dependencies:
   cloud_firestore: ^5.6.5
   flutter_native_splash: ^2.4.4
   intl: ^0.18.1
+  google_fonts: ^6.2.1
 
 dev_dependencies:
   flutter_test:

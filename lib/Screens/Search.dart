@@ -18,6 +18,7 @@ class _SearchState extends State<Search> {
   List<Map<String, dynamic>> trips = [];
   List<Map<String, dynamic>> filteredTrips = [];
   bool isLoading = true;
+  bool isBooking = false; // State for loading indicator when booking
   String errorMessage = '';
 
   @override
@@ -60,7 +61,7 @@ class _SearchState extends State<Search> {
         }
 
         loadedTrips.add({
-          'tripID': tripRef, // Store trip as Firestore reference
+          'tripID': tripRef,
           'trip': tripRoute,
           'agency': agencyName,
         });
@@ -80,20 +81,23 @@ class _SearchState extends State<Search> {
   }
 
   Future<void> _createBooking(DocumentReference tripRef) async {
+    setState(() {
+      isBooking = true; // Hide all trips and show loading
+    });
+
     try {
       User? user = FirebaseAuth.instance.currentUser;
       if (user == null) {
         throw Exception("User not logged in");
       }
 
-      // Store both travellerID and tripID as Firestore references
       DocumentReference travellerRef =
           FirebaseFirestore.instance.collection('users').doc(user.uid);
 
       DocumentReference bookingRef =
-          await FirebaseFirestore.instance.collection('booking').add({
-        'travellerID': travellerRef, // Stored as reference
-        'tripID': tripRef, // Stored as reference
+          await FirebaseFirestore.instance.collection('bookings').add({
+        'travellerID': travellerRef,
+        'tripID': tripRef,
         'active': false,
         'createdAt': FieldValue.serverTimestamp(),
       });
@@ -110,6 +114,9 @@ class _SearchState extends State<Search> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Error creating booking: $error")),
       );
+      setState(() {
+        isBooking = false; // Show trips again if booking fails
+      });
     }
   }
 
@@ -150,26 +157,31 @@ class _SearchState extends State<Search> {
                           child: Text(errorMessage,
                               style: const TextStyle(color: Colors.red)),
                         )
-                      : filteredTrips.isEmpty
-                          ? const Center(child: Text("No trips available."))
-                          : ListView.builder(
-                              itemCount: filteredTrips.length,
-                              itemBuilder: (context, index) {
-                                return Column(
-                                  children: [
-                                    GestureDetector(
-                                      onTap: () => _createBooking(
-                                          filteredTrips[index]['tripID']),
-                                      child: TicketOptions(
-                                        trip: filteredTrips[index]['trip']!,
-                                        agency: filteredTrips[index]['agency']!,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 15.0),
-                                  ],
-                                );
-                              },
-                            ),
+                      : isBooking
+                          ? const Center(
+                              child:
+                                  CircularProgressIndicator()) // Show only the loader when booking
+                          : filteredTrips.isEmpty
+                              ? const Center(child: Text("No trips available."))
+                              : ListView.builder(
+                                  itemCount: filteredTrips.length,
+                                  itemBuilder: (context, index) {
+                                    return Column(
+                                      children: [
+                                        GestureDetector(
+                                          onTap: () => _createBooking(
+                                              filteredTrips[index]['tripID']),
+                                          child: TicketOptions(
+                                            trip: filteredTrips[index]['trip']!,
+                                            agency: filteredTrips[index]
+                                                ['agency']!,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 15.0),
+                                      ],
+                                    );
+                                  },
+                                ),
             ),
           ],
         ),

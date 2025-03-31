@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:tourix_app/screens/planned_trips.dart';
 import '../widgets/TopBar.dart';
 import '../widgets/BottomBar.dart';
 import '../widgets/TicketInput.dart';
@@ -18,17 +19,28 @@ class _BookingState extends State<Booking> {
   final TextEditingController _priceController = TextEditingController();
   final TextEditingController _totalSeatsController = TextEditingController();
 
+  bool _isLoading = false; // Added state for loading indicator
+
   Future<void> _createTrip() async {
+    if (_isLoading) return; // Prevent multiple clicks
+
+    setState(() {
+      _isLoading = true; // Show loading indicator
+    });
+
     try {
       User? user = FirebaseAuth.instance.currentUser;
-      // if (user == null) {
-      //   ScaffoldMessenger.of(context).showSnackBar(
-      //     const SnackBar(content: Text("You need to be logged in")),
-      //   );
-      //   return;
-      // }
+      if (user == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("You need to be logged in")),
+        );
+        setState(() {
+          _isLoading = false;
+        });
+        return;
+      }
 
-      String agencyID = "7Z2CcAgivRUwgHZpfUF3FBrHCwG2";
+      String agencyID = user.uid;
       String departure = _departureController.text.trim();
       String destination = _destinationController.text.trim();
       int price = int.tryParse(_priceController.text.trim()) ?? 0;
@@ -41,6 +53,9 @@ class _BookingState extends State<Booking> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text("Please fill all fields correctly")),
         );
+        setState(() {
+          _isLoading = false;
+        });
         return;
       }
 
@@ -48,9 +63,13 @@ class _BookingState extends State<Booking> {
       List<String> seats =
           List.generate(totalSeats, (index) => 'A${index + 1}');
 
+      // Convert agencyID to a Firestore DocumentReference
+      DocumentReference agencyRef =
+          FirebaseFirestore.instance.collection('users').doc(agencyID);
+
       // Firestore document structure
       Map<String, dynamic> tripData = {
-        'agencyID': agencyID,
+        'agencyID': agencyRef, // Store as a reference, not a string
         'departureCity': departure,
         'destinationCity': destination,
         'price': price,
@@ -71,10 +90,22 @@ class _BookingState extends State<Booking> {
       _destinationController.clear();
       _priceController.clear();
       _totalSeatsController.clear();
+
+      // Navigate to PlannedTrips
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => PlannedTrips(userId: agencyID),
+        ),
+      );
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Error: ${e.toString()}")),
       );
+    } finally {
+      setState(() {
+        _isLoading = false; // Hide loading indicator after process
+      });
     }
   }
 
@@ -120,16 +151,26 @@ class _BookingState extends State<Booking> {
               const SizedBox(height: 24),
               Center(
                 child: ElevatedButton(
-                  onPressed: _createTrip,
+                  onPressed:
+                      _isLoading ? null : _createTrip, // Disable when loading
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF3630A1),
                     padding: const EdgeInsets.symmetric(
                         horizontal: 32, vertical: 16),
                   ),
-                  child: const Text(
-                    'Create Trip',
-                    style: TextStyle(color: Colors.white, fontSize: 16),
-                  ),
+                  child: _isLoading
+                      ? const SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: CircularProgressIndicator(
+                            color: Colors.white,
+                            strokeWidth: 2,
+                          ),
+                        )
+                      : const Text(
+                          'Create Trip',
+                          style: TextStyle(color: Colors.white, fontSize: 16),
+                        ),
                 ),
               ),
             ],

@@ -36,7 +36,7 @@ class _SeatSelectionPageState extends State<SeatSelectionPage> {
     try {
       // Get booking document using bookingDocID
       DocumentSnapshot bookingDoc = await FirebaseFirestore.instance
-          .collection('booking')
+          .collection('bookings')
           .doc(widget.bookingDocID)
           .get();
 
@@ -61,11 +61,11 @@ class _SeatSelectionPageState extends State<SeatSelectionPage> {
       }
 
       List<String> totalSeats =
-          List<String>.from(tripDoc['totalSeats']); // Get totalSeats array
+          List<String>.from(tripDoc['availableSeats']); // Get totalSeats array
 
       // Fetch all active bookings for the same trip & departureTime
       QuerySnapshot bookingSnapshot = await FirebaseFirestore.instance
-          .collection('booking')
+          .collection('bookings')
           .where('tripID', isEqualTo: tripRef) // Use reference
           .where('departureTime',
               isEqualTo: departureTime) // Filter by departure time
@@ -133,7 +133,7 @@ class _SeatSelectionPageState extends State<SeatSelectionPage> {
 
     try {
       await FirebaseFirestore.instance
-          .collection('booking')
+          .collection('bookings')
           .doc(widget.bookingDocID)
           .update({
         'seatsBooked': bookedSeats.toList(),
