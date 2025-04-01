@@ -26,7 +26,7 @@ class BottomNavigationBarWidget extends StatelessWidget {
           NavigationItem(
               icon: Icons.bookmark_border,
               label: 'Bookings',
-              isActive: false,
+              isActive: true,
               onTap: () {
                 Navigator.push(
                     context,
@@ -36,7 +36,7 @@ class BottomNavigationBarWidget extends StatelessWidget {
           NavigationItem(
               icon: Icons.person_outline,
               label: 'Profile',
-              isActive: false,
+              isActive: true,
               onTap: () {
                 Navigator.push(
                     context,
@@ -46,7 +46,7 @@ class BottomNavigationBarWidget extends StatelessWidget {
           NavigationItem(
               icon: Icons.history,
               label: 'History',
-              isActive: false,
+              isActive: true,
               onTap: () {
                 Navigator.push(
                     context,

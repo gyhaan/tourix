@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart'; // ✅ Import FirebaseAuth
 import 'package:tourix_app/screens/Search.dart';
+import 'package:tourix_app/widgets/BottomBar.dart';
 import 'package:tourix_app/widgets/bottom_bar.dart';
 import 'package:tourix_app/widgets/no_tickets_available.dart';
 import '../models/ticket_info.dart';
@@ -227,7 +228,7 @@ class _PreviousTicketScreenState extends State<PreviousTicketScreen> {
           ),
         ],
       ),
-      bottomNavigationBar: const BottomNavigationBarWidget(),
+      bottomNavigationBar: const BottomBar(),
     );
   }
 }

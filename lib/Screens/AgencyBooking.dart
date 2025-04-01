@@ -95,7 +95,7 @@ class _BookingState extends State<Booking> {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-          builder: (context) => PlannedTrips(userId: agencyID),
+          builder: (context) => const PlannedTrips(),
         ),
       );
     } catch (e) {

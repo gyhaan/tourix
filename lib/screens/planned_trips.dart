@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:tourix_app/models/planned_trips_info.dart';
 import 'package:tourix_app/screens/AgencyBooking.dart';
 import 'package:tourix_app/widgets/bottom_bar.dart';
 import 'package:tourix_app/widgets/planned_trip_card.dart';
 
 class PlannedTrips extends StatefulWidget {
-  final String userId;
-  const PlannedTrips({Key? key, required this.userId}) : super(key: key);
+  const PlannedTrips({Key? key}) : super(key: key);
 
   @override
   _PlannedTripsState createState() => _PlannedTripsState();
@@ -27,8 +27,15 @@ class _PlannedTripsState extends State<PlannedTrips> {
     try {
       setState(() => isLoading = true); // Show loading indicator
 
+      User? user = FirebaseAuth.instance.currentUser;
+      if (user == null) {
+        print("No user logged in");
+        setState(() => isLoading = false);
+        return;
+      }
+
       DocumentReference agencyRef =
-          FirebaseFirestore.instance.collection("users").doc(widget.userId);
+          FirebaseFirestore.instance.collection("users").doc(user.uid);
 
       QuerySnapshot tripSnapshot = await FirebaseFirestore.instance
           .collection("trips")
