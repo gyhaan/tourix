@@ -1,33 +1,60 @@
 import 'package:flutter/material.dart';
+import 'package:tourix_app/screens/booked_trips.dart';
+import 'package:tourix_app/screens/profile.dart';
+import 'package:tourix_app/screens/planned_trips.dart';
+import 'navigation_item.dart';
 
 class BottomBar extends StatelessWidget {
-  const BottomBar({super.key});
+  const BottomBar({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return NavigationBar(
-      destinations: const <Widget>[
-        NavigationDestination(
-          icon: Icon(Icons.home, color: Colors.white),
-          label: 'Home',
-          selectedIcon: Icon(Icons.home_filled, color: Colors.white),
-        ),
-        NavigationDestination(
-          icon: Icon(Icons.book_online_outlined, color: Colors.white),
-          label: 'Bookings',
-          selectedIcon: Icon(Icons.book_online, color: Colors.white),
-        ),
-        NavigationDestination(
-          icon: Icon(Icons.person_outline, color: Colors.white),
-          label: 'Profile',
-          selectedIcon: Icon(Icons.person, color: Colors.white),
-        ),
-        NavigationDestination(
-          icon: Icon(Icons.history_outlined, color: Colors.white),
-          label: 'History',
-          selectedIcon: Icon(Icons.hourglass_top_rounded, color: Colors.white),
-        ),
-      ],
+    return Container(
+      height: 60,
+      decoration: const BoxDecoration(
+        color: Color(0xFF3630A1),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black12,
+            blurRadius: 5,
+          ),
+        ],
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          NavigationItem(
+              icon: Icons.bookmark_border,
+              label: 'Home',
+              isActive: true,
+              onTap: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const PlannedTrips()));
+              }),
+          NavigationItem(
+              icon: Icons.history,
+              label: 'Bookings',
+              isActive: true,
+              onTap: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const BookedTrips()));
+              }),
+          NavigationItem(
+              icon: Icons.person_outline,
+              label: 'Profile',
+              isActive: true,
+              onTap: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const ProfilePage()));
+              }),
+        ],
+      ),
     );
   }
 }

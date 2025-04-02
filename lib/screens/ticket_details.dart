@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:tourix_app/widgets/bottom_bar.dart';
 import 'ticket_seat.dart';
 
 class TravellersPage extends StatefulWidget {
-  const TravellersPage({super.key});
+  final String bookingDocID;
+  const TravellersPage({super.key, required this.bookingDocID});
 
   @override
   _TravellersPageState createState() => _TravellersPageState();
@@ -14,6 +16,8 @@ class _TravellersPageState extends State<TravellersPage> {
   final TextEditingController travellerController = TextEditingController();
   List<Map<String, String>> travellers = [];
   String? selectedTime;
+  DateTime? selectedDate;
+  bool isLoading = false; // Track loading state
 
   List<String> generateTimeSlots() {
     List<String> times = [];
@@ -40,22 +44,108 @@ class _TravellersPageState extends State<TravellersPage> {
     }
   }
 
-  void _goToNext() {
-    if (travellers.isEmpty) {
+  void _goToNext() async {
+    if (selectedDate == null || selectedTime == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Please add at least one traveller")),
+        const SnackBar(content: Text("Please fill all details")),
       );
       return;
     }
 
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => SeatSelectionPage(
-          travellerData: travellers,
-        ),
-      ),
+    DateTime departureDateTime = DateTime(
+      selectedDate!.year,
+      selectedDate!.month,
+      selectedDate!.day,
+      int.parse(selectedTime!.split(":")[0]),
+      int.parse(selectedTime!.split(":")[1].split(" ")[0]),
     );
+
+    setState(() {
+      isLoading = true;
+    });
+
+    try {
+      DocumentSnapshot bookingSnapshot = await FirebaseFirestore.instance
+          .collection('bookings')
+          .doc(widget.bookingDocID)
+          .get();
+
+      if (!bookingSnapshot.exists) {
+        throw Exception("Booking not found");
+      }
+
+      Map<String, dynamic> bookingData =
+          bookingSnapshot.data() as Map<String, dynamic>;
+      DocumentReference tripRef = bookingData['tripID'];
+
+      DocumentSnapshot tripSnapshot = await tripRef.get();
+
+      if (!tripSnapshot.exists) {
+        throw Exception("Trip details not found");
+      }
+
+      Map<String, dynamic> tripData =
+          tripSnapshot.data() as Map<String, dynamic>;
+      String departureCity = tripData['departureCity'];
+      String destinationCity = tripData['destinationCity'];
+
+      List<dynamic> totalSeats = List.from(tripData['availableSeats'] ?? []);
+
+      QuerySnapshot bookingsSnapshot = await FirebaseFirestore.instance
+          .collection('bookings')
+          .where('departureTime', isEqualTo: departureDateTime)
+          .where('active', isEqualTo: true)
+          .get();
+
+      List<List<dynamic>> bookedSeats = [];
+
+      for (var doc in bookingsSnapshot.docs) {
+        var data = doc.data() as Map<String, dynamic>;
+        var tripRef = data['tripID'] as DocumentReference;
+        DocumentSnapshot tripSnap = await tripRef.get();
+        if (!tripSnap.exists) continue;
+
+        var tripDetails = tripSnap.data() as Map<String, dynamic>;
+        if (tripDetails['departureCity'] == departureCity &&
+            tripDetails['destinationCity'] == destinationCity) {
+          bookedSeats.add(List.from(data['seatsBooked']));
+        }
+      }
+
+      List<dynamic> allBookedSeats = bookedSeats.expand((x) => x).toList();
+      int remainingSeats = totalSeats.length - allBookedSeats.length;
+
+      if (travellers.length + 1 > remainingSeats) {
+        throw Exception("Not enough seats available for the selected trip.");
+      }
+
+      await FirebaseFirestore.instance
+          .collection('bookings')
+          .doc(widget.bookingDocID)
+          .update({
+        'departureTime': departureDateTime,
+      });
+
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => SeatSelectionPage(
+            travellerData: travellers,
+            bookingDocID: widget.bookingDocID,
+          ),
+        ),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Error: $e")),
+      );
+
+      print(e);
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
+    }
   }
 
   @override
@@ -65,15 +155,16 @@ class _TravellersPageState extends State<TravellersPage> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: const Color(0xFF3630A1),
+        iconTheme: const IconThemeData(color: Colors.white),
         elevation: 0,
         title: Row(
           children: [
             Image.asset(
-              'assets/images/frame.png', // ✅ your logo image path
+              'assets/images/frame.png',
               height: 32,
             ),
             const SizedBox(width: 8),
-            const Text("Tourix"),
+            const Text("Tourix", style: TextStyle(color: Colors.white))
           ],
         ),
       ),
@@ -87,6 +178,41 @@ class _TravellersPageState extends State<TravellersPage> {
               "When are you travelling?",
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
             ),
+            const SizedBox(height: 8),
+            GestureDetector(
+              onTap: () async {
+                DateTime? pickedDate = await showDatePicker(
+                  context: context,
+                  initialDate: selectedDate ?? DateTime.now(),
+                  firstDate: DateTime.now(),
+                  lastDate: DateTime(2101),
+                );
+                if (pickedDate != null) {
+                  setState(() {
+                    selectedDate = pickedDate;
+                  });
+                }
+              },
+              child: AbsorbPointer(
+                child: TextField(
+                  decoration: InputDecoration(
+                    labelText: 'Departure Date',
+                    hintText: selectedDate == null
+                        ? 'Pick a date'
+                        : DateFormat('yyyy-MM-dd').format(selectedDate!),
+                    border: const OutlineInputBorder(),
+                  ),
+                ),
+              ),
+            ),
+            if (selectedDate != null) ...[
+              const SizedBox(height: 8),
+              Text(
+                "Selected Date: ${DateFormat('EEEE, MMMM d, yyyy').format(selectedDate!)}",
+                style:
+                    const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+              ),
+            ],
             const SizedBox(height: 8),
             DropdownButtonFormField<String>(
               value: selectedTime,
@@ -107,10 +233,8 @@ class _TravellersPageState extends State<TravellersPage> {
               ),
             ),
             const SizedBox(height: 24),
-            const Text(
-              "Add more travellers",
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
-            ),
+            const Text("Add more travellers",
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
             const SizedBox(height: 8),
             Row(
               children: [
@@ -131,30 +255,30 @@ class _TravellersPageState extends State<TravellersPage> {
               ],
             ),
             const SizedBox(height: 16),
-            if (travellers.isNotEmpty)
-              ...travellers.map(
-                (traveller) => ListTile(
-                  leading: const Icon(Icons.radio_button_checked,
-                      color: Color(0xFF3630A1)),
-                  title: Text(traveller['name'] ?? ''),
-                  subtitle: Text("Departure: ${traveller['time']}"),
-                ),
-              ),
-            const Spacer(),
-            ElevatedButton(
-              onPressed: _goToNext,
-              style: ElevatedButton.styleFrom(
-                minimumSize: const Size(double.infinity, 50),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                backgroundColor: const Color(0xFF3630A1),
-              ),
-              child: const Text(
-                "Next",
-                style: TextStyle(color: Colors.white), // ✅ white text
+            Expanded(
+              child: ListView.builder(
+                itemCount: travellers.length,
+                itemBuilder: (context, index) {
+                  return ListTile(
+                    leading: const Icon(Icons.radio_button_checked,
+                        color: Color(0xFF3630A1)),
+                    title: Text(travellers[index]['name'] ?? ''),
+                    subtitle: Text("Departure: ${travellers[index]['time']}"),
+                  );
+                },
               ),
             ),
+            isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF3630A1),
+                      minimumSize: const Size(double.infinity, 50),
+                    ),
+                    onPressed: _goToNext,
+                    child: const Text("Next",
+                        style: TextStyle(color: Colors.white)),
+                  ),
           ],
         ),
       ),

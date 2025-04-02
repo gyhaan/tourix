@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:tourix_app/screens/home.dart';
+import 'package:tourix_app/screens/planned_trips.dart';
+import 'package:tourix_app/screens/ticket_screen.dart';
 // Ensure this exists
 
 class SignUpPage extends StatefulWidget {
@@ -47,8 +48,8 @@ class _SignUpPageState extends State<SignUpPage> {
 
       // 3️⃣ Store additional user details in Firestore
       await FirebaseFirestore.instance.collection("users").doc(uid).set({
-        "fullName": fullNameController.text.trim(),
-        "role": selectedRole,
+        "name": fullNameController.text.trim(),
+        "role": selectedRole!.toLowerCase(),
         "email": emailController.text.trim(),
         "createdAt": Timestamp.now(),
       });
@@ -58,11 +59,21 @@ class _SignUpPageState extends State<SignUpPage> {
         const SnackBar(content: Text("Account created successfully!")),
       );
 
-      // 4️⃣ Navigate to home screen
-      Navigator.push(
-          context, MaterialPageRoute(builder: (context) => const Home()));
-
-      // Navigator.push(context, route)
+      // 4️⃣ Navigate based on role
+      if (selectedRole == "User") {
+        // Pass the user ID to TicketScreen
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const TicketScreen(), // Pass the UID here
+          ),
+        );
+      } else if (selectedRole == "Agency") {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const PlannedTrips()),
+        );
+      }
     } catch (e) {
       print("❌ Error: $e");
       ScaffoldMessenger.of(context).showSnackBar(

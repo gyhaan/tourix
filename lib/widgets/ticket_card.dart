@@ -26,7 +26,7 @@ class TicketCard extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  '${ticket.date}, ${ticket.time}',
+                  '${ticket.date}, ${ticket.time.substring(0, 5)}',
                   style: const TextStyle(
                     color: primaryColor,
                     fontSize: 14,
