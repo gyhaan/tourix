@@ -126,7 +126,7 @@ class _TravellersPageState extends State<TravellersPage> {
         'departureTime': departureDateTime,
       });
 
-      Navigator.pushReplacement(
+      Navigator.push(
         context,
         MaterialPageRoute(
           builder: (context) => SeatSelectionPage(

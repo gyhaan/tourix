@@ -143,7 +143,7 @@ class _SeatSelectionPageState extends State<SeatSelectionPage> {
         const SnackBar(content: Text("Booking updated successfully!")),
       );
 
-      Navigator.pushReplacement(
+      Navigator.push(
         context,
         MaterialPageRoute(
           builder: (context) =>
@@ -170,7 +170,10 @@ class _SeatSelectionPageState extends State<SeatSelectionPage> {
           children: [
             Image.asset('assets/images/frame.png', height: 32),
             const SizedBox(width: 8),
-            const Text("Tourix"),
+            const Text(
+              "Tourix",
+              style: TextStyle(color: Colors.white),
+            ),
           ],
         ),
       ),

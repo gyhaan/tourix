@@ -158,10 +158,14 @@ class _BookingInfoScreenState extends State<BookingInfoScreen> {
               child: SingleChildScrollView(
                 padding: const EdgeInsets.all(16),
                 child: Column(
+                  crossAxisAlignment:
+                      CrossAxisAlignment.start, // Align content to start
                   children: [
-                    const Text('Booking Details',
-                        style: TextStyle(
-                            fontSize: 24, fontWeight: FontWeight.bold)),
+                    const Text(
+                      'Booking Details',
+                      style:
+                          TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                    ),
                     const SizedBox(height: 24),
 
                     // Booking Info Card
@@ -180,6 +184,7 @@ class _BookingInfoScreenState extends State<BookingInfoScreen> {
                                 ? (bookingData?['departureTime'] as Timestamp)
                                     .toDate()
                                     .toString()
+                                    .substring(0, 16)
                                 : 'N/A',
                           ),
                           _buildInfoRow(
@@ -255,8 +260,10 @@ class _BookingInfoScreenState extends State<BookingInfoScreen> {
                             borderRadius: BorderRadius.circular(8),
                           ),
                         ),
-                        child: const Text('Proceed to Checkout',
-                            style: TextStyle(color: Colors.white)),
+                        child: const Text(
+                          'Proceed to Checkout',
+                          style: TextStyle(color: Colors.white),
+                        ),
                       ),
                     ),
                     const SizedBox(height: 24),

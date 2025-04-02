@@ -104,7 +104,7 @@ class _SearchState extends State<Search> {
 
       String bookingDocID = bookingRef.id;
 
-      Navigator.pushReplacement(
+      Navigator.push(
         context,
         MaterialPageRoute(
           builder: (context) => TravellersPage(bookingDocID: bookingDocID),
