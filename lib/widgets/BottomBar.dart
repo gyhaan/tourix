@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:tourix_app/screens/booked_trips.dart';
 import 'package:tourix_app/screens/profile.dart';
 import 'package:tourix_app/screens/planned_trips.dart';
 import 'navigation_item.dart';
@@ -34,13 +35,13 @@ class BottomBar extends StatelessWidget {
               }),
           NavigationItem(
               icon: Icons.history,
-              label: 'History',
+              label: 'Bookings',
               isActive: true,
               onTap: () {
-                // Navigator.push(
-                //     context,
-                //     MaterialPageRoute(
-                //         builder: (context) => const PreviousTicketScreen()));
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const BookedTrips()));
               }),
           NavigationItem(
               icon: Icons.person_outline,

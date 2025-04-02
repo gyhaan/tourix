@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:tourix_app/screens/login.dart';
+import 'package:tourix_app/widgets/BottomBar.dart';
 import 'package:tourix_app/widgets/bottom_bar.dart';
 
 class ProfilePage extends StatefulWidget {
@@ -123,7 +124,11 @@ class _ProfilePageState extends State<ProfilePage> {
                     ),
                   ),
                 ),
-      bottomNavigationBar: const BottomNavigationBarWidget(),
+      bottomNavigationBar: userData != null
+          ? (userData!['role'] == 'agency'
+              ? const BottomBar()
+              : const BottomNavigationBarWidget())
+          : null,
     );
   }
 

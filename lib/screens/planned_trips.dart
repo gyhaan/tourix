@@ -3,7 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:tourix_app/models/planned_trips_info.dart';
 import 'package:tourix_app/screens/AgencyBooking.dart';
-import 'package:tourix_app/widgets/bottom_bar.dart';
+import 'package:tourix_app/widgets/BottomBar.dart';
 import 'package:tourix_app/widgets/planned_trip_card.dart';
 
 class PlannedTrips extends StatefulWidget {
@@ -188,7 +188,7 @@ class _PlannedTripsState extends State<PlannedTrips> {
               ),
             ],
           ),
-          bottomNavigationBar: const BottomNavigationBarWidget(),
+          bottomNavigationBar: const BottomBar(),
         ),
 
         // **Loading Overlay**

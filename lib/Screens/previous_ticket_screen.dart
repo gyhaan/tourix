@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart'; // ✅ Import FirebaseAuth
 import 'package:tourix_app/screens/Search.dart';
-import 'package:tourix_app/widgets/BottomBar.dart';
+import 'package:tourix_app/screens/TicketInfo.dart';
 import 'package:tourix_app/widgets/bottom_bar.dart';
 import 'package:tourix_app/widgets/no_tickets_available.dart';
 import '../models/ticket_info.dart';
@@ -79,6 +79,7 @@ class _PreviousTicketScreenState extends State<PreviousTicketScreen> {
         int passengers = (data["seatsBooked"] as List).length;
 
         var ticket = {
+          "bookingId": doc.id,
           "date": data["departureTime"].toDate().toString().split(" ")[0],
           "time": data["departureTime"].toDate().toString().split(" ")[1],
           "ticketCode": doc.id.substring(0, 5),
@@ -217,9 +218,20 @@ class _PreviousTicketScreenState extends State<PreviousTicketScreen> {
                       busType: ticketData['busType'],
                     );
 
-                    return Padding(
-                      padding: const EdgeInsets.only(bottom: 16),
-                      child: TicketCard(ticket: ticket),
+                    return GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                TicketInfoScreen(uid: ticketData['bookingId']),
+                          ),
+                        );
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.only(bottom: 16),
+                        child: TicketCard(ticket: ticket),
+                      ),
                     );
                   },
                 );
@@ -228,7 +240,7 @@ class _PreviousTicketScreenState extends State<PreviousTicketScreen> {
           ),
         ],
       ),
-      bottomNavigationBar: const BottomBar(),
+      bottomNavigationBar: const BottomNavigationBarWidget(),
     );
   }
 }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart'; // Import Firebase Auth
 import 'package:tourix_app/screens/Search.dart';
+import 'package:tourix_app/screens/TicketInfo.dart';
 import 'package:tourix_app/widgets/bottom_bar.dart';
 import 'package:tourix_app/widgets/no_tickets_available.dart';
 import '../models/ticket_info.dart';
@@ -77,6 +78,7 @@ class _TicketScreenState extends State<TicketScreen> {
         int passengers = (data["seatsBooked"] as List).length;
 
         var ticket = {
+          "bookingId": doc.id,
           "date": data["departureTime"].toDate().toString().split(" ")[0],
           "time": data["departureTime"].toDate().toString().split(" ")[1],
           "ticketCode": doc.id.substring(0, 5),
@@ -96,6 +98,16 @@ class _TicketScreenState extends State<TicketScreen> {
       print("Error fetching tickets: $e");
       throw e;
     }
+  }
+
+  Future<void> cancelTicket(String bookingId) async {
+    await FirebaseFirestore.instance
+        .collection("bookings")
+        .doc(bookingId)
+        .update({"active": false});
+    setState(() {
+      _ticketsFuture = fetchUpcomingTickets();
+    });
   }
 
   @override
@@ -195,7 +207,7 @@ class _TicketScreenState extends State<TicketScreen> {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(child: CircularProgressIndicator());
                 } else if (snapshot.hasError) {
-                  return Center(child: Text("Failed to load tickets."));
+                  return const Center(child: Text("Failed to load tickets."));
                 } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
                   return const NoTicketsAvailable();
                 }
@@ -216,9 +228,55 @@ class _TicketScreenState extends State<TicketScreen> {
                       busType: ticketData['busType'],
                     );
 
-                    return Padding(
-                      padding: const EdgeInsets.only(bottom: 16),
-                      child: TicketCard(ticket: ticket),
+                    return Dismissible(
+                      key: Key(ticketData['bookingId']),
+                      direction: DismissDirection.endToStart,
+                      background: Container(
+                        color: Colors.red,
+                        alignment: Alignment.centerRight,
+                        padding: const EdgeInsets.symmetric(horizontal: 20),
+                        child: const Icon(Icons.delete, color: Colors.white),
+                      ),
+                      confirmDismiss: (direction) async {
+                        return await showDialog(
+                          context: context,
+                          builder: (context) => AlertDialog(
+                            title: const Text("Cancel Ticket"),
+                            content: const Text(
+                                "Are you sure you want to cancel this ticket?"),
+                            actions: [
+                              TextButton(
+                                onPressed: () =>
+                                    Navigator.of(context).pop(false),
+                                child: const Text("No"),
+                              ),
+                              TextButton(
+                                onPressed: () =>
+                                    Navigator.of(context).pop(true),
+                                child: const Text("Yes"),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                      onDismissed: (direction) {
+                        cancelTicket(ticketData['bookingId']);
+                      },
+                      child: GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => TicketInfoScreen(
+                                  uid: ticketData['bookingId']),
+                            ),
+                          );
+                        },
+                        child: Padding(
+                          padding: const EdgeInsets.only(bottom: 16),
+                          child: TicketCard(ticket: ticket),
+                        ),
+                      ),
                     );
                   },
                 );
@@ -231,3 +289,162 @@ class _TicketScreenState extends State<TicketScreen> {
     );
   }
 }
+
+
+// import 'package:flutter/material.dart';
+// import 'package:cloud_firestore/cloud_firestore.dart';
+// import 'package:firebase_auth/firebase_auth.dart';
+// import 'package:tourix_app/screens/Search.dart';
+// import 'package:tourix_app/screens/TicketInfo.dart';
+// import 'package:tourix_app/widgets/bottom_bar.dart';
+// import 'package:tourix_app/widgets/no_tickets_available.dart';
+// import '../models/ticket_info.dart';
+// import '../widgets/ticket_card.dart';
+
+// class TicketScreen extends StatefulWidget {
+//   const TicketScreen({Key? key}) : super(key: key);
+
+//   @override
+//   _TicketScreenState createState() => _TicketScreenState();
+// }
+
+// class _TicketScreenState extends State<TicketScreen> {
+//   late Future<List<Map<String, dynamic>>> _ticketsFuture;
+
+//   @override
+//   void initState() {
+//     super.initState();
+//     _ticketsFuture = fetchUpcomingTickets();
+//   }
+
+//   Future<List<Map<String, dynamic>>> fetchUpcomingTickets() async {
+//     try {
+//       User? user = FirebaseAuth.instance.currentUser;
+//       if (user == null) return [];
+      
+//       String userId = user.uid;
+//       final userRef = FirebaseFirestore.instance.doc("users/$userId");
+
+//       QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+//           .collection("bookings")
+//           .where("travellerID", isEqualTo: userRef)
+//           .where("departureTime", isGreaterThan: Timestamp.fromDate(DateTime.now()))
+//           .where("active", isEqualTo: true)
+//           .orderBy("departureTime", descending: false)
+//           .get();
+
+//       List<Map<String, dynamic>> tickets = querySnapshot.docs.map((doc) {
+//         var data = doc.data() as Map<String, dynamic>;
+//         return {
+//           "bookingId": doc.id,
+//           "date": data["departureTime"].toDate().toString().split(" ")[0],
+//           "time": data["departureTime"].toDate().toString().split(" ")[1],
+//           "ticketCode": doc.id.substring(0, 5),
+//           "origin": data["tripID"]["departureCity"] ?? "Unknown",
+//           "destination": data["tripID"]["destinationCity"] ?? "Unknown",
+//           "passengers": (data["seatsBooked"] as List).length,
+//           "busType": "Agency", // Fetch agency info if needed
+//         };
+//       }).toList();
+
+//       return tickets;
+//     } catch (e) {
+//       print("Error fetching tickets: $e");
+//       return [];
+//     }
+//   }
+
+//   Future<void> cancelTicket(String bookingId) async {
+//     await FirebaseFirestore.instance.collection("bookings").doc(bookingId).update({"active": false});
+//     setState(() {
+//       _ticketsFuture = fetchUpcomingTickets();
+//     });
+//   }
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       appBar: AppBar(
+//         automaticallyImplyLeading: false,
+//         backgroundColor: const Color(0xFF3630A1),
+//         title: const Text('Tourix', style: TextStyle(color: Colors.white)),
+//       ),
+//       body: FutureBuilder<List<Map<String, dynamic>>>(
+//         future: _ticketsFuture,
+//         builder: (context, snapshot) {
+//           if (snapshot.connectionState == ConnectionState.waiting) {
+//             return const Center(child: CircularProgressIndicator());
+//           } else if (snapshot.hasError || !snapshot.hasData || snapshot.data!.isEmpty) {
+//             return const NoTicketsAvailable();
+//           }
+
+//           final tickets = snapshot.data!;
+//           return ListView.builder(
+//             padding: const EdgeInsets.symmetric(horizontal: 24),
+//             itemCount: tickets.length,
+//             itemBuilder: (context, index) {
+//               final ticketData = tickets[index];
+//               final ticket = TicketInfo(
+//                 date: ticketData['date'],
+//                 time: ticketData['time'],
+//                 ticketCode: ticketData['ticketCode'],
+//                 origin: ticketData['origin'],
+//                 destination: ticketData['destination'],
+//                 passengers: ticketData['passengers'],
+//                 busType: ticketData['busType'],
+//               );
+              
+//               return Dismissible(
+//                 key: Key(ticketData['bookingId']),
+//                 direction: DismissDirection.endToStart,
+//                 background: Container(
+//                   color: Colors.red,
+//                   alignment: Alignment.centerRight,
+//                   padding: const EdgeInsets.symmetric(horizontal: 20),
+//                   child: const Icon(Icons.delete, color: Colors.white),
+//                 ),
+//                 confirmDismiss: (direction) async {
+//                   return await showDialog(
+//                     context: context,
+//                     builder: (context) => AlertDialog(
+//                       title: const Text("Cancel Ticket"),
+//                       content: const Text("Are you sure you want to cancel this ticket?"),
+//                       actions: [
+//                         TextButton(
+//                           onPressed: () => Navigator.of(context).pop(false),
+//                           child: const Text("No"),
+//                         ),
+//                         TextButton(
+//                           onPressed: () => Navigator.of(context).pop(true),
+//                           child: const Text("Yes"),
+//                         ),
+//                       ],
+//                     ),
+//                   );
+//                 },
+//                 onDismissed: (direction) {
+//                   cancelTicket(ticketData['bookingId']);
+//                 },
+//                 child: GestureDetector(
+//                   onTap: () {
+//                     Navigator.push(
+//                       context,
+//                       MaterialPageRoute(
+//                         builder: (context) => TicketInfoScreen(uid: ticketData['bookingId']),
+//                       ),
+//                     );
+//                   },
+//                   child: Padding(
+//                     padding: const EdgeInsets.only(bottom: 16),
+//                     child: TicketCard(ticket: ticket),
+//                   ),
+//                 ),
+//               );
+//             },
+//           );
+//         },
+//       ),
+//       bottomNavigationBar: const BottomNavigationBarWidget(),
+//     );
+//   }
+// }

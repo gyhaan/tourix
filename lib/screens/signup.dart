@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:tourix_app/screens/home.dart';
 import 'package:tourix_app/screens/planned_trips.dart';
 import 'package:tourix_app/screens/ticket_screen.dart';
 // Ensure this exists
