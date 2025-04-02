@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:tourix_app/screens/ticket_details.dart';
+import 'package:tourix_app/widgets/bottom_bar.dart';
 import '../widgets/TopBar.dart';
-import '../widgets/BottomBar.dart';
 import '../widgets/TicketOptions.dart';
 
 class Search extends StatefulWidget {
@@ -186,7 +186,7 @@ class _SearchState extends State<Search> {
           ],
         ),
       ),
-      bottomNavigationBar: const BottomBar(),
+      bottomNavigationBar: const BottomNavigationBarWidget(),
     );
   }
 }
