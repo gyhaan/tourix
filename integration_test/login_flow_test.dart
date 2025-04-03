@@ -28,6 +28,12 @@ void main() {
       // Tap login button
       await tester.tap(find.text('Login'));
       await tester.pumpAndSettle();
+
+      // Note: In a real test, we would:
+      // 1. Mock Firebase Auth
+      // 2. Mock Firestore
+      // 3. Verify navigation to the appropriate screen based on user role
+      // 4. Verify user data is properly loaded
     });
 
     testWidgets('should show error with invalid credentials',
@@ -48,6 +54,11 @@ void main() {
       // Tap login button
       await tester.tap(find.text('Login'));
       await tester.pumpAndSettle();
+
+      // Note: In a real test, we would:
+      // 1. Mock Firebase Auth to throw an error
+      // 2. Verify the error message is displayed
+      // 3. Verify we stay on the login screen
     });
   });
 }
