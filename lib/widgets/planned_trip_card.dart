@@ -5,9 +5,9 @@ class PlannedTripCard extends StatelessWidget {
   final PlannedTripsInfo trip;
 
   const PlannedTripCard({
-    Key? key,
+    super.key,
     required this.trip,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

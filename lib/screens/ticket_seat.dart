@@ -1,16 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:tourix_app/screens/booking_info.dart';
-import 'package:tourix_app/widgets/bottom_bar.dart';
+import 'package:tourix_app/widgets/BottomBar.dart';
 
 class SeatSelectionPage extends StatefulWidget {
   final String bookingDocID;
   final List<Map<String, String>> travellerData;
+  final FirebaseFirestore? firestore;
 
   const SeatSelectionPage({
     super.key,
     required this.travellerData,
     required this.bookingDocID,
+    this.firestore,
   });
 
   @override
@@ -21,24 +23,35 @@ class _SeatSelectionPageState extends State<SeatSelectionPage> {
   String? selectedSeatNumber;
   Set<String> bookedSeats = {};
   List<String> availableSeats = [];
-  bool isLoading = true; // 🔄 Loading state
-  bool isSubmitting = false; // State for loading button
+  bool isLoading = true;
+  bool isSubmitting = false;
+  bool _initialized = false;
+
+  FirebaseFirestore get _firestore =>
+      widget.firestore ?? FirebaseFirestore.instance;
 
   @override
-  void initState() {
-    super.initState();
-    _fetchAvailableSeats();
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_initialized) {
+      _initialized = true;
+      _fetchAvailableSeats();
+    }
   }
 
   Future<void> _fetchAvailableSeats() async {
-    setState(() => isLoading = true); // Start loading
+    if (!mounted) return;
+    setState(() => isLoading = true);
 
     try {
       // Get booking document using bookingDocID
-      DocumentSnapshot bookingDoc = await FirebaseFirestore.instance
-          .collection('bookings')
-          .doc(widget.bookingDocID)
-          .get();
+      DocumentSnapshot bookingDoc =
+          await _firestore
+              .collection('bookings')
+              .doc(widget.bookingDocID)
+              .get();
+
+      if (!mounted) return;
 
       if (!bookingDoc.exists) {
         setState(() => isLoading = false);
@@ -49,28 +62,30 @@ class _SeatSelectionPageState extends State<SeatSelectionPage> {
       DocumentReference tripRef = bookingDoc['tripID'];
       String tripID = tripRef.id;
 
-      Timestamp departureTime =
-          bookingDoc['departureTime']; // Get departureTime
+      Timestamp departureTime = bookingDoc['departureTime'];
 
       // Fetch trip details using tripID reference
       DocumentSnapshot tripDoc = await tripRef.get();
+
+      if (!mounted) return;
 
       if (!tripDoc.exists) {
         setState(() => isLoading = false);
         return;
       }
 
-      List<String> totalSeats =
-          List<String>.from(tripDoc['availableSeats']); // Get totalSeats array
+      List<String> totalSeats = List<String>.from(tripDoc['availableSeats']);
 
       // Fetch all active bookings for the same trip & departureTime
-      QuerySnapshot bookingSnapshot = await FirebaseFirestore.instance
-          .collection('bookings')
-          .where('tripID', isEqualTo: tripRef) // Use reference
-          .where('departureTime',
-              isEqualTo: departureTime) // Filter by departure time
-          .where('active', isEqualTo: true)
-          .get();
+      QuerySnapshot bookingSnapshot =
+          await _firestore
+              .collection('bookings')
+              .where('tripID', isEqualTo: tripRef)
+              .where('departureTime', isEqualTo: departureTime)
+              .where('active', isEqualTo: true)
+              .get();
+
+      if (!mounted) return;
 
       Set<String> allBookedSeats = {};
 
@@ -85,14 +100,20 @@ class _SeatSelectionPageState extends State<SeatSelectionPage> {
 
       setState(() {
         availableSeats = filteredSeats;
-        isLoading = false; // Stop loading
+        isLoading = false;
       });
     } catch (e) {
       print(e);
+      if (!mounted) return;
       setState(() => isLoading = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Error fetching seats: $e")),
-      );
+      // Use Future.microtask to show the error after the build is complete
+      Future.microtask(() {
+        if (mounted) {
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text("Error fetching seats: $e")));
+        }
+      });
     }
   }
 
@@ -123,39 +144,43 @@ class _SeatSelectionPageState extends State<SeatSelectionPage> {
     if (bookedSeats.length != requiredSeats) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-            content: Text(
-                "You must select exactly $requiredSeats seats before proceeding!")),
+          content: Text(
+            "You must select exactly $requiredSeats seats before proceeding!",
+          ),
+        ),
       );
       return;
     }
 
-    setState(() => isSubmitting = true); // Start loading
+    setState(() => isSubmitting = true);
 
     try {
-      await FirebaseFirestore.instance
-          .collection('bookings')
-          .doc(widget.bookingDocID)
-          .update({
+      await _firestore.collection('bookings').doc(widget.bookingDocID).update({
         'seatsBooked': bookedSeats.toList(),
       });
+
+      if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Booking updated successfully!")),
       );
 
-      Navigator.push(
+      Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-          builder: (context) =>
-              BookingInfoScreen(bookingId: widget.bookingDocID),
+          builder:
+              (context) => BookingInfoScreen(bookingId: widget.bookingDocID),
         ),
       );
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Error updating booking: $e")),
-      );
+      if (!mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Error updating booking: $e")));
     } finally {
-      setState(() => isSubmitting = false); // Stop loading
+      if (mounted) {
+        setState(() => isSubmitting = false);
+      }
     }
   }
 
@@ -168,131 +193,157 @@ class _SeatSelectionPageState extends State<SeatSelectionPage> {
         elevation: 0,
         title: Row(
           children: [
-            Image.asset('assets/images/frame.png', height: 32),
+            Image.asset('assets/images/Frame.png', height: 32),
             const SizedBox(width: 8),
-            const Text(
-              "Tourix",
-              style: TextStyle(color: Colors.white),
-            ),
+            const Text("Tourix", style: TextStyle(color: Colors.white)),
           ],
         ),
       ),
-      body: isLoading
-          ? const Center(child: CircularProgressIndicator()) // 🔄 Show loading
-          : SingleChildScrollView(
-              child: Container(
-                color: Colors.white,
-                padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    const Align(
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        "Select Bus Seats",
-                        style: TextStyle(
-                            fontSize: 18, fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    Center(
-                      child: Image.asset(
-                        'assets/images/Bus_seats.jpg',
-                        height: MediaQuery.of(context).size.height * 0.6,
-                        fit: BoxFit.contain,
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-                    Row(
-                      children: [
-                        const Text("Seat Nbr:", style: TextStyle(fontSize: 16)),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: DropdownButtonFormField<String>(
-                            value: selectedSeatNumber,
-                            decoration: const InputDecoration(
-                              border: OutlineInputBorder(),
-                              contentPadding:
-                                  EdgeInsets.symmetric(horizontal: 12),
-                            ),
-                            items: availableSeats.map((String number) {
-                              return DropdownMenuItem<String>(
-                                value: number,
-                                child: Text(number),
-                              );
-                            }).toList(),
-                            onChanged: (value) {
-                              setState(() {
-                                selectedSeatNumber = value;
-                              });
-                            },
+      body:
+          isLoading
+              ? const Center(child: CircularProgressIndicator())
+              : SingleChildScrollView(
+                child: Container(
+                  color: Colors.white,
+                  padding: const EdgeInsets.fromLTRB(
+                    16,
+                    16,
+                    16,
+                    50,
+                  ), // Added bottom padding
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      const Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          "Select Bus Seats",
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
-                        const SizedBox(width: 10),
-                        ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF3630A1),
-                            padding: const EdgeInsets.symmetric(
-                                vertical: 12, horizontal: 16),
-                          ),
-                          onPressed: _addSeat,
-                          child: const Text(
-                            "+",
-                            style: TextStyle(color: Colors.white, fontSize: 20),
-                          ),
+                      ),
+                      const SizedBox(height: 10),
+                      Center(
+                        child: Image.asset(
+                          'assets/images/Bus_seats.jpg',
+                          height: MediaQuery.of(context).size.height * 0.6,
+                          fit: BoxFit.contain,
                         ),
-                      ],
-                    ),
-                    const SizedBox(height: 20),
-                    if (bookedSeats.isNotEmpty)
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                      ),
+                      const SizedBox(height: 20),
+                      Row(
                         children: [
                           const Text(
-                            "Selected Seats:",
-                            style: TextStyle(
-                                fontSize: 16, fontWeight: FontWeight.bold),
+                            "Seat Nbr:",
+                            style: TextStyle(fontSize: 16),
                           ),
-                          const SizedBox(height: 10),
-                          SizedBox(
-                            height: 100,
-                            child: ListView.builder(
-                              shrinkWrap: true,
-                              itemCount: bookedSeats.length,
-                              itemBuilder: (context, index) {
-                                String seat = bookedSeats.elementAt(index);
-                                return ListTile(
-                                  title: Text("Seat $seat"),
-                                  trailing: IconButton(
-                                    icon: const Icon(Icons.close,
-                                        color: Colors.red),
-                                    onPressed: () => _removeSeat(seat),
-                                  ),
-                                );
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: DropdownButtonFormField<String>(
+                              value: selectedSeatNumber,
+                              decoration: const InputDecoration(
+                                border: OutlineInputBorder(),
+                                contentPadding: EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                ),
+                              ),
+                              items:
+                                  availableSeats.map((String number) {
+                                    return DropdownMenuItem<String>(
+                                      value: number,
+                                      child: Text(number),
+                                    );
+                                  }).toList(),
+                              onChanged: (value) {
+                                setState(() {
+                                  selectedSeatNumber = value;
+                                });
                               },
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+                          ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFF3630A1),
+                              padding: const EdgeInsets.symmetric(
+                                vertical: 12,
+                                horizontal: 16,
+                              ),
+                            ),
+                            onPressed: _addSeat,
+                            child: const Text(
+                              "+",
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 20,
+                              ),
                             ),
                           ),
                         ],
                       ),
-                    const SizedBox(height: 20),
-                    ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF3630A1),
-                        minimumSize: const Size(double.infinity, 50),
+                      const SizedBox(height: 20),
+                      if (bookedSeats.isNotEmpty)
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              "Selected Seats:",
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            const SizedBox(height: 10),
+                            Wrap(
+                              spacing: 8,
+                              runSpacing: 8,
+                              children:
+                                  bookedSeats.map((seat) {
+                                    return Chip(
+                                      label: Text(seat),
+                                      onDeleted: () => _removeSeat(seat),
+                                      backgroundColor: const Color(0xFF3630A1),
+                                      labelStyle: const TextStyle(
+                                        color: Colors.white,
+                                      ),
+                                      deleteIconColor: Colors.white,
+                                    );
+                                  }).toList(),
+                            ),
+                          ],
+                        ),
+                      const SizedBox(height: 20),
+                      ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF3630A1),
+                          minimumSize: const Size(double.infinity, 50),
+                        ),
+                        onPressed:
+                            isSubmitting ? null : _updateBookingInFirestore,
+                        child:
+                            isSubmitting
+                                ? const CircularProgressIndicator(
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                    Colors.white,
+                                  ),
+                                )
+                                : const Text(
+                                  "Confirm Seats",
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
                       ),
-                      onPressed:
-                          isSubmitting ? null : _updateBookingInFirestore,
-                      child: isSubmitting
-                          ? const CircularProgressIndicator(color: Colors.white)
-                          : const Text("Next",
-                              style: TextStyle(color: Colors.white)),
-                    ),
-                    const SizedBox(height: 15),
-                  ],
+                      const SizedBox(height: 20),
+                    ],
+                  ),
                 ),
               ),
-            ),
-      bottomNavigationBar: const BottomNavigationBarWidget(),
+      bottomNavigationBar: const BottomBar(),
     );
   }
 }

@@ -29,8 +29,8 @@ class TopImageScreen extends StatelessWidget {
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
                 colors: [
-                  Color(0xFF3630A1).withOpacity(0.3),  // Light purple at top
-                  Color(0xFF3630A1).withOpacity(0.3),  // Darker purple at bottom
+                  const Color(0xFF3630A1).withOpacity(0.3),  // Light purple at top
+                  const Color(0xFF3630A1).withOpacity(0.3),  // Darker purple at bottom
                 ],
               ),
             ),

@@ -4,7 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:tourix_app/widgets/TopBar.dart';
 
 class BookedTrips extends StatefulWidget {
-  const BookedTrips({Key? key}) : super(key: key);
+  const BookedTrips({super.key});
 
   @override
   _BookedTripsState createState() => _BookedTripsState();

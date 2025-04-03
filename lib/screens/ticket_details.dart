@@ -126,7 +126,7 @@ class _TravellersPageState extends State<TravellersPage> {
         'departureTime': departureDateTime,
       });
 
-      Navigator.push(
+      Navigator.pushReplacement(
         context,
         MaterialPageRoute(
           builder: (context) => SeatSelectionPage(
@@ -160,7 +160,7 @@ class _TravellersPageState extends State<TravellersPage> {
         title: Row(
           children: [
             Image.asset(
-              'assets/images/frame.png',
+              'assets/images/Frame.png',
               height: 32,
             ),
             const SizedBox(width: 8),

@@ -5,9 +5,9 @@ class TicketCard extends StatelessWidget {
   final TicketInfo ticket;
 
   const TicketCard({
-    Key? key,
+    super.key,
     required this.ticket,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

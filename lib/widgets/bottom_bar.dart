@@ -5,7 +5,7 @@ import 'package:tourix_app/screens/ticket_screen.dart';
 import 'navigation_item.dart';
 
 class BottomNavigationBarWidget extends StatelessWidget {
-  const BottomNavigationBarWidget({Key? key}) : super(key: key);
+  const BottomNavigationBarWidget({super.key});
 
   @override
   Widget build(BuildContext context) {

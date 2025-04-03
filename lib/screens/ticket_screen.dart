@@ -9,7 +9,7 @@ import '../models/ticket_info.dart';
 import '../widgets/ticket_card.dart';
 
 class TicketScreen extends StatefulWidget {
-  const TicketScreen({Key? key}) : super(key: key);
+  const TicketScreen({super.key});
 
   @override
   _TicketScreenState createState() => _TicketScreenState();
@@ -96,7 +96,7 @@ class _TicketScreenState extends State<TicketScreen> {
       return tickets;
     } catch (e) {
       print("Error fetching tickets: $e");
-      throw e;
+      rethrow;
     }
   }
 
@@ -219,6 +219,7 @@ class _TicketScreenState extends State<TicketScreen> {
                   itemBuilder: (context, index) {
                     final ticketData = tickets[index];
                     final ticket = TicketInfo(
+                      id: ticketData['bookingId'],
                       date: ticketData['date'],
                       time: ticketData['time'],
                       ticketCode: ticketData['ticketCode'],

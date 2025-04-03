@@ -7,7 +7,7 @@ import 'package:tourix_app/widgets/BottomBar.dart';
 import 'package:tourix_app/widgets/planned_trip_card.dart';
 
 class PlannedTrips extends StatefulWidget {
-  const PlannedTrips({Key? key}) : super(key: key);
+  const PlannedTrips({super.key});
 
   @override
   _PlannedTripsState createState() => _PlannedTripsState();

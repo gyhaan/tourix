@@ -6,9 +6,9 @@ class TicketTopBar extends StatelessWidget {
   final String pageTitle; 
 
   const TicketTopBar({
-    Key? key,
+    super.key,
     required this.pageTitle, 
-  }) : super(key: key);
+  });
 
    @override
   Widget build(BuildContext context) {

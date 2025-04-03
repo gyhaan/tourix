@@ -1,7 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:tourix_app/firebase_options.dart';
-import 'screens/login.dart';
+import 'package:tourix_app/screens/login.dart';
 
 import 'package:google_fonts/google_fonts.dart';
 
@@ -22,7 +22,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
         navigationBarTheme: NavigationBarThemeData(
-          labelTextStyle: MaterialStateProperty.all(
+          labelTextStyle: WidgetStateProperty.all(
             const TextStyle(color: Colors.white, fontSize: 14),
           ),
           indicatorColor: Colors.white.withOpacity(0.2),

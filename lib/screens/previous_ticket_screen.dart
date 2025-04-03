@@ -9,7 +9,7 @@ import '../models/ticket_info.dart';
 import '../widgets/ticket_card.dart';
 
 class PreviousTicketScreen extends StatefulWidget {
-  const PreviousTicketScreen({Key? key}) : super(key: key);
+  const PreviousTicketScreen({super.key});
 
   @override
   _PreviousTicketScreenState createState() => _PreviousTicketScreenState();
@@ -209,6 +209,7 @@ class _PreviousTicketScreenState extends State<PreviousTicketScreen> {
                   itemBuilder: (context, index) {
                     final ticketData = tickets[index];
                     final ticket = TicketInfo(
+                      id: ticketData['bookingId'],
                       date: ticketData['date'],
                       time: ticketData['time'],
                       ticketCode: ticketData['ticketCode'],

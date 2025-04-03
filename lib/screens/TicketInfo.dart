@@ -67,7 +67,7 @@ class _TicketInfoScreenState extends State<TicketInfoScreen> {
       };
     } catch (e) {
       print("Error fetching booking details: $e");
-      throw e;
+      rethrow;
     }
   }
 
@@ -84,9 +84,9 @@ class _TicketInfoScreenState extends State<TicketInfoScreen> {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
-            return Center(child: Text("Error loading ticket details."));
+            return const Center(child: Text("Error loading ticket details."));
           } else if (!snapshot.hasData) {
-            return Center(child: Text("No ticket details found."));
+            return const Center(child: Text("No ticket details found."));
           }
 
           final ticketData = snapshot.data!;
@@ -94,7 +94,7 @@ class _TicketInfoScreenState extends State<TicketInfoScreen> {
           return SingleChildScrollView(
             child: Column(
               children: [
-                TopImageScreen(pageTitle: "Ticket Details"),
+                const TopImageScreen(pageTitle: "Ticket Details"),
                 const SizedBox(height: 30.0),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16.0),

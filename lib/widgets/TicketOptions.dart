@@ -14,10 +14,10 @@ class TicketOptions extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: 370,
-      padding: EdgeInsets.all(12),
+      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         border: Border.all(
-          color: Color(0xFF3630A1),
+          color: const Color(0xFF3630A1),
           width: 1,
         ),
         borderRadius: BorderRadius.circular(4),
@@ -27,18 +27,18 @@ class TicketOptions extends StatelessWidget {
         children: [
           Text(
             trip,
-            style: TextStyle(
+            style: const TextStyle(
               color: Color(0xFF3630A1),
               fontSize: 16,
             ),
           ),
           Row(
             children: [
-              Icon(Icons.car_rental, color: Color(0xFF3630A1), size: 24),
-              SizedBox(width: 8),
+              const Icon(Icons.car_rental, color: Color(0xFF3630A1), size: 24),
+              const SizedBox(width: 8),
               Text(
                 agency,
-                style: TextStyle(
+                style: const TextStyle(
                   color: Color(0xFF3630A1),
                   fontSize: 16,
                 ),

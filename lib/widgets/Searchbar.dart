@@ -26,34 +26,34 @@ class _SearchbarState extends State<Searchbar> {
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: Container(
+      child: SizedBox(
         width: 380.0,
         child: TextField(
           controller: myController,
           decoration: InputDecoration(
             hintText: 'Search Ticket',
-            hintStyle: TextStyle(color: Color(0xFF3630A1)),
+            hintStyle: const TextStyle(color: Color(0xFF3630A1)),
             suffixIcon: GestureDetector(
               onTap: clickCancel, // Remove the () - pass the function reference
-              child: Icon(Icons.cancel, color: Color(0xFF3630A1), size: 24),
+              child: const Icon(Icons.cancel, color: Color(0xFF3630A1), size: 24),
             ),
-            prefixIcon: Icon(Icons.search, color: Color(0xFF3630A1), size: 24),
+            prefixIcon: const Icon(Icons.search, color: Color(0xFF3630A1), size: 24),
             border: OutlineInputBorder(
-              borderSide: BorderSide(color: Color(0xFF3630A1), width: 1),
+              borderSide: const BorderSide(color: Color(0xFF3630A1), width: 1),
               borderRadius: BorderRadius.circular(4),
             ),
             enabledBorder: OutlineInputBorder(
-              borderSide: BorderSide(color: Color(0xFF3630A1), width: 1),
+              borderSide: const BorderSide(color: Color(0xFF3630A1), width: 1),
               borderRadius: BorderRadius.circular(4),
             ),
             focusedBorder: OutlineInputBorder(
-              borderSide: BorderSide(color: Color(0xFF3630A1), width: 2),
+              borderSide: const BorderSide(color: Color(0xFF3630A1), width: 2),
               borderRadius: BorderRadius.circular(4),
             ),
-            contentPadding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+            contentPadding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
           ),
-          cursorColor: Color(0xFF3630A1),
-          style: TextStyle(color: Color(0xFF3630A1)),
+          cursorColor: const Color(0xFF3630A1),
+          style: const TextStyle(color: Color(0xFF3630A1)),
         ),
       ),
     );

@@ -5,7 +5,7 @@ import 'package:tourix_app/screens/planned_trips.dart';
 import 'navigation_item.dart';
 
 class BottomBar extends StatelessWidget {
-  const BottomBar({Key? key}) : super(key: key);
+  const BottomBar({super.key});
 
   @override
   Widget build(BuildContext context) {

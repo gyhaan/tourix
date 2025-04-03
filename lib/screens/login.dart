@@ -7,6 +7,8 @@ import 'package:tourix_app/screens/ticket_screen.dart';
 import 'signup.dart'; // Ensure this file exists
 
 class LoginPage extends StatefulWidget {
+  const LoginPage({super.key});
+
   @override
   _LoginPageState createState() => _LoginPageState();
 }
