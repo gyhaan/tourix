@@ -24,6 +24,19 @@ void main() {
       expect(bookingInfo.phoneNumber, null);
     });
 
-    
+    test('should create BookingInfo instance with optional phone number', () {
+      final bookingInfo = BookingInfo(
+        userName: 'John Doe',
+        departureTime: '10:00',
+        fromLocation: 'London',
+        toLocation: 'Paris',
+        agencyName: 'Luxury Bus',
+        seatsBooked: 2,
+        price: '100',
+        phoneNumber: '+1234567890',
+      );
+
+      expect(bookingInfo.phoneNumber, '+1234567890');
+    });
   });
 }
