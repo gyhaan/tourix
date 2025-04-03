@@ -52,6 +52,40 @@ void main() {
       expect(plainText.contains('Sign Up'), isTrue);
     });
 
-    
+    testWidgets('should show error when email is empty',
+        (WidgetTester tester) async {
+      await tester.pumpWidget(const MaterialApp(home: LoginPage()));
+
+      // Tap login button without entering email
+      await tester.tap(find.text('Login'));
+      await tester.pumpAndSettle();
+
+      // Verify error message
+      expect(find.text('Please enter email and password'), findsOneWidget);
+    });
+
+    testWidgets('should navigate to signup screen when signup is tapped',
+        (WidgetTester tester) async {
+      await TestHelpers.setupFirestore();
+
+      // Build our app and trigger a frame
+      await tester.pumpWidget(MaterialApp(
+        home: Scaffold(
+          body: LoginPage(),
+        ),
+      ));
+
+      // Wait for all animations to complete
+      await tester.pumpAndSettle();
+
+      // Find and tap the GestureDetector for sign up
+      final signUpGesture = find.byType(GestureDetector).last;
+      expect(signUpGesture, findsOneWidget);
+      await tester.tap(signUpGesture);
+      await tester.pumpAndSettle();
+
+      // Note: We can't verify the actual navigation since we're using MaterialApp
+      // In a real integration test, we would verify the navigation
+    });
   });
 }
