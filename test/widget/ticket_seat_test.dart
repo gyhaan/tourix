@@ -49,6 +49,36 @@ void main() {
       expect(find.text('Confirm Seats'), findsOneWidget);
     });
 
+    testWidgets('shows error when adding seat without selection',
+        (WidgetTester tester) async {
+      // Build our app and trigger a frame.
+      await tester.pumpWidget(
+        MaterialApp(
+          scaffoldMessengerKey: GlobalKey<ScaffoldMessengerState>(),
+          home: Scaffold(
+            body: SeatSelectionPage(
+              bookingDocID: 'test-booking-id',
+              travellerData: [
+                {'name': 'Test User', 'age': '25'},
+              ],
+              firestore: FirestoreMocks.mockFirestore,
+            ),
+          ),
+        ),
+      );
+
+      // Wait for the loading indicator to disappear
+      await tester.pump();
+      await tester.pump(const Duration(seconds: 1));
+
+      // Tap the add button without selecting a seat
+      await tester.tap(find.text('+'));
+      await tester.pump();
+
+      // Verify that the error message is shown
+      expect(find.text('Please select a valid seat number'), findsOneWidget);
+    });
+
     
   });
 }
