@@ -79,6 +79,42 @@ void main() {
       expect(find.text('Please select a valid seat number'), findsOneWidget);
     });
 
-    
+    testWidgets('can select and add a seat', (WidgetTester tester) async {
+      // Build our app and trigger a frame.
+      await tester.pumpWidget(
+        MaterialApp(
+          scaffoldMessengerKey: GlobalKey<ScaffoldMessengerState>(),
+          home: Scaffold(
+            body: SeatSelectionPage(
+              bookingDocID: 'test-booking-id',
+              travellerData: [
+                {'name': 'Test User', 'age': '25'},
+              ],
+              firestore: FirestoreMocks.mockFirestore,
+            ),
+          ),
+        ),
+      );
+
+      // Wait for the loading indicator to disappear
+      await tester.pump();
+      await tester.pump(const Duration(seconds: 1));
+
+      // Find and tap the dropdown
+      final dropdown = find.byType(DropdownButtonFormField<String>);
+      await tester.tap(dropdown);
+      await tester.pump();
+
+      // Select the first available seat
+      await tester.tap(find.text('A1').last);
+      await tester.pump();
+
+      // Tap the add button
+      await tester.tap(find.text('+'));
+      await tester.pump();
+
+      // Verify that the seat was added
+      expect(find.text('A1'), findsOneWidget);
+    });
   });
 }
