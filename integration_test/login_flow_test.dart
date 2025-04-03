@@ -28,10 +28,26 @@ void main() {
       // Tap login button
       await tester.tap(find.text('Login'));
       await tester.pumpAndSettle();
-
-      
     });
 
-    
+    testWidgets('should show error with invalid credentials',
+        (WidgetTester tester) async {
+      app.main();
+      await tester.pumpAndSettle();
+
+      // Enter invalid email
+      await tester.enterText(
+          find.widgetWithText(TextField, 'Email'), 'invalid@example.com');
+      await tester.pumpAndSettle();
+
+      // Enter invalid password
+      await tester.enterText(
+          find.widgetWithText(TextField, 'Password'), 'wrongpassword');
+      await tester.pumpAndSettle();
+
+      // Tap login button
+      await tester.tap(find.text('Login'));
+      await tester.pumpAndSettle();
+    });
   });
 }
