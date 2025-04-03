@@ -30,6 +30,22 @@ void main() {
       await tester.pumpAndSettle();
     });
 
-    
+    testWidgets('should cancel ticket flow', (WidgetTester tester) async {
+      app.main();
+      await tester.pumpAndSettle();
+
+      // Login first
+      await tester.enterText(
+          find.widgetWithText(TextField, 'Email'), 'test@example.com');
+      await tester.pumpAndSettle();
+      await tester.enterText(
+          find.widgetWithText(TextField, 'Password'), 'password123');
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Login'));
+      await tester.pumpAndSettle();
+
+      // Wait for ticket screen to load
+      await tester.pumpAndSettle();
+    });
   });
 }
