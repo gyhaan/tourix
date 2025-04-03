@@ -38,11 +38,11 @@ Designed to simplify transportation in [your country/region], Toruix helps trave
 
 ## Screenshots
 
-![Login Screen](/home/pimanzi/Downloads/Login.png)
+![alt text](image.png)
 
-![Booking Screen](/home/pimanzi/Downloads/booking-removebg-preview.png)
+![alt text](image.png)
 
-## ![Seats Screen](/home/pimanzi/Downloads/seats1-removebg-preview.png)
+![alt text](image-1.png)
 
 ## Technologies Used
 
