@@ -26,9 +26,12 @@ Designed to simplify transportation in [your country/region], Toruix helps trave
 
 ## Screenshots
 
-1. ![alt text](seats-removebg-preview.png)
-2. ![alt text](seats-removebg-preview-1.png)
-3. ![alt text](trip-removebg-preview.png)
+1. ![Booking #2 (1)](https://github.com/user-attachments/assets/d48a3eeb-f839-492d-b488-6f0bc61655b8)
+
+2. ![seats-removebg-preview](https://github.com/user-attachments/assets/963cd61a-51da-454f-afea-4947d436d960)
+
+3. ![trip-removebg-preview](https://github.com/user-attachments/assets/4d1cd127-8430-4986-90d5-7dd5020a2107)
+
 
 ## Technologies Used
 
