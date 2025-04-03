@@ -1,6 +1,7 @@
 # Toruix - Transport Booking & Management System
 
 ## Table of Contents
+
 1. [Project Description](#project-description)
 2. [Key Features](#key-features)
 3. [Screenshots](#screenshots)
@@ -12,7 +13,9 @@
 ---
 
 ## Project Description
+
 Toruix is a modern transport booking and management system that enables users to book bus tickets for inter-provincial travel in Rwanda. The app provides:
+
 - Real-time bus schedule information
 - Secure ticket booking and payment
 - Booking history and management
@@ -23,6 +26,7 @@ Designed to simplify transportation in [your country/region], Toruix helps trave
 ---
 
 ## Key Features
+
 - **User Authentication**: Secure login/signup with Firebase
 - **Ticket Booking**: Intuitive booking interface with seat selection
 - **Payment Integration**: Secure payment processing
@@ -33,49 +37,47 @@ Designed to simplify transportation in [your country/region], Toruix helps trave
 ---
 
 ## Screenshots
-![Booking Screen](![booking-removebg-preview](https://github.com/user-attachments/assets/d26276c4-abaf-4e1f-8b7a-57abf7f70fb3)
-)
-*Home screen showing available routes*
 
-![Booking Screen](screenshots/booking.png)
-*Ticket booking interface*
+![Login Screen](/home/pimanzi/Downloads/Login.png)
 
-![Payment Screen](screenshots/payment.png)
-*Secure payment processing*
+![Booking Screen](/home/pimanzi/Downloads/booking-removebg-preview.png)
 
-![Profile Screen](screenshots/profile.png)
-*User profile and booking history*
-
----
+## ![Seats Screen](/home/pimanzi/Downloads/seats1-removebg-preview.png)
 
 ## Technologies Used
+
 - **Frontend**: Flutter (iOS & Android)
 - **Backend**: Firebase (Authentication, Firestore Database)
 - **State Management**: Provider/Bloc (choose one)
 - **Payment Processing**: [Specify if you used FlutterWave, Stripe, etc.]
 - **Other Packages**:
   - google_fonts
+
 ---
 
 ## Installation Guide
+
 Follow these steps to run the app locally:
 
 ### Prerequisites
+
 - Flutter SDK (v3.0 or later)
 - Dart SDK
 - Android Studio/Xcode (for emulator)
 - Firebase account (for backend services)
 
 ### Setup Instructions
+
 1. Clone the repository:
+
    ```bash
    git clone https://github.com/yourusername/toruix-app.git
    ```
 
 2. Navigate to project directory
 
-    ```bash
-    cd toruix-app
+   ```bash
+   cd toruix-app
    ```
 
 3. Install depedencies
@@ -92,13 +94,10 @@ Follow these steps to run the app locally:
 
 ### Contributors
 
-1. Owen Ganza - [@owen-ganza]
+1. Owen Ganza
 
-2. Ian Ganza - [@ian-ganza]
+2. Ian Ganza
 
-3. Placide Imanzi - [@pimanzi]
+3. Placide Imanzi
 
-4.Anne Marie Twagirayezu - [@annemarie]
-   
-   
-    
+4. Anne Marie Twagirayezu
