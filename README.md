@@ -1,5 +1,19 @@
 # Tourix_app
 
+## Table of Contents
+
+1. [Project Description](#project-description)
+2. [Key Features](#key-features)
+3. [Screenshots](#screenshots)
+4. [Technologies Used](#technologies-used)
+5. [Installation Guide](#installation-guide)
+6. [Contributors](#contributors)
+7. [Contact](#contact)
+
+---
+
+## Project Description
+
 This project is a starting point for a Flutter application.
 
 A few resources to get you started if this is your first Flutter project:
